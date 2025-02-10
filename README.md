@@ -1,0 +1,1 @@
+# com.cameleon.photo.manager
