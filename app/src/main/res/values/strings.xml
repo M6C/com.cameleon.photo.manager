@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Photo Manager</string>
+    <string name="server_client_id">772529670627-puje************************9v.apps.googleusercontent.com</string>
+    <string name="client_secret">GOCSPX-dw0G8**************3Cg</string>
 </resources>
