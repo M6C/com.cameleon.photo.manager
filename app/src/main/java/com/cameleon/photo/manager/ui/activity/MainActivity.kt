@@ -23,13 +23,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.cameleon.photo.manager.R
 import com.cameleon.photo.manager.ui.theme.PhotoManagerTheme
+import com.cameleon.photo.manager.view.page.photo.GooglePhotosScreen
+import com.cameleon.photo.manager.view.page.photo.GooglePhotosViewModel
 import com.cameleon.photo.manager.view.page.photo.PhotosViewModel
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.tasks.Task
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -42,9 +40,10 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel: PhotosViewModel by viewModels()
 
+    private val viewModelPhoto: GooglePhotosViewModel by viewModels()
+
     @Inject
     lateinit var googleSignInOptions : GoogleSignInOptions
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,11 +57,9 @@ class MainActivity : ComponentActivity() {
             val photos = viewModel.photos.collectAsState().value
 
             viewModel.getUserMessage()?.let {
-                Log.i(TAG, "-----> viewModel.getUserMessage: $it")
                 Toast.makeText(applicationContext, "Message : $it", Toast.LENGTH_SHORT).show()
             }
             viewModel.getUserError()?.let {
-                Log.e(TAG, "-----> viewModel.getUserError: $it")
                 Toast.makeText(applicationContext, "Error : $it", Toast.LENGTH_SHORT).show()
             }
 
@@ -79,6 +76,7 @@ class MainActivity : ComponentActivity() {
                             Spacer(modifier = Modifier.weight(1f))
                             Button(onClick = {
                                 viewModel.logOut()
+                                viewModelPhoto.logOut()
                                 Toast.makeText(this@MainActivity, "Logout Successful", Toast.LENGTH_SHORT).show()
                             }) {
                                 Text(text = "Logout")
@@ -86,8 +84,7 @@ class MainActivity : ComponentActivity() {
                         }
 
                         if (isSignedIn.value) {
-                            Text(text = "${photos.size}")
-//                            GooglePhotosScreen(viewModelPhoto)
+                            GooglePhotosScreen(viewModelPhoto)
                         } else {
                             LoginScreen(onLoginClicked = {
                                 viewModel.launchSingIn(this@MainActivity)
@@ -109,18 +106,10 @@ fun LoginScreen(onLoginClicked: () -> Unit) {
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun LoginScreenPreview() {
     PhotoManagerTheme {
-        Greeting("Android")
+        LoginScreen() {}
     }
 }

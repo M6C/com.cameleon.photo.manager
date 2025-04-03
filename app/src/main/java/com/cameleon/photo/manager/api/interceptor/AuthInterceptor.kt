@@ -21,10 +21,10 @@ class AuthInterceptor(private val tokenBusiness: TokenBusiness) : Interceptor {
         var response = chain.proceed(requestBuilder.build())
 
         // Si le token est expiré (401 Unauthorized), on tente de le rafraîchir
-        if (response.code() == 401) {
+        if (response.code == 401) {
             response.close() // Fermer la réponse existante
 
-            Log.i("GooglePhoto", "AuthInterceptor response code : ${response.code()} -  Refresh Access Token (Old:$token)")
+            Log.i("GooglePhoto", "AuthInterceptor response code : ${response.code} -  Refresh Access Token (Old:$token)")
 
             // Rafraîchir le token (bloquant)
             runBlocking { tokenBusiness.refreshAccessToken() }?.let { token ->
