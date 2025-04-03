@@ -5,14 +5,16 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import com.cameleon.photo.manager.api.GoogleOAuthApi
 import com.cameleon.photo.manager.ui.activity.MainActivity.Companion.TAG
 import com.cameleon.photo.manager.view.page.photo.PhotosViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import retrofit2.Retrofit
 import javax.inject.Inject
 
-class GoogleSignInBusiness @Inject constructor(private val googleAuthBusiness: GoogleAuthBusiness,  private val googleSignInOptions : GoogleSignInOptions, private val tokenBusiness: TokenBusiness) {
+class GoogleSignInBusiness @Inject constructor(private val clientHttp: Retrofit, private val googleSignInOptions : GoogleSignInOptions, private val tokenBusiness: TokenBusiness) {
 
     // Google Sign-In configuration
     fun singIn(activity: ComponentActivity, handleSignInResult: (GoogleSignInAccount) -> Unit): ActivityResultLauncher<Intent> =
@@ -63,7 +65,27 @@ class GoogleSignInBusiness @Inject constructor(private val googleAuthBusiness: G
 
     suspend fun exchangeAuthCodeForTokens(account: GoogleSignInAccount, clientId: String, clientSecret: String, onSignIn: () -> Unit) {
         try {
-            googleAuthBusiness.exchangeAuthCodeForTokens(account, clientId, clientSecret, onSignIn)
+            val authCode = account.serverAuthCode
+            if (authCode == null)
+                return
+
+            val api = clientHttp.create(GoogleOAuthApi::class.java)
+
+            val response = api.getTokens(
+                clientId = clientId,
+                clientSecret = clientSecret,
+                code = authCode,
+                grantType = "authorization_code",
+                redirectUri = ""
+            )
+            val accessToken = response.accessToken
+            val refreshToken = response.refreshToken
+            tokenBusiness.saveTokens(
+                accessToken = accessToken,
+                refreshToken = refreshToken
+            )
+
+            onSignIn()
         } catch (e: RuntimeException) {
             val accessToken = tokenBusiness.getAccessToken()
             Log.e(PhotosViewModel.TAG, "Google Exchange Auth For Token Api Call Failed '${e.message}\nWith account:$account clientId:$clientId clientSecret:$clientSecret Auth Token:$accessToken", e)
