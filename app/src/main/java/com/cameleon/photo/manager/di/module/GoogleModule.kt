@@ -1,6 +1,7 @@
 package com.cameleon.photo.manager.di.module
 
 import android.content.Context
+import androidx.activity.ComponentActivity
 import com.cameleon.photo.manager.R
 import com.cameleon.photo.manager.di.module.BusinessModule.provideAuthInterceptor
 import com.cameleon.photo.manager.di.module.BusinessModule.provideTokenBusiness
@@ -10,6 +11,7 @@ import com.google.android.gms.common.api.Scope
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ActivityContext
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.Interceptor
@@ -22,6 +24,9 @@ import javax.inject.Qualifier
 @Module
 @InstallIn(SingletonComponent::class)
 object GoogleModule {
+
+    @Provides
+    fun provideActivity(@ActivityContext activity: ComponentActivity) = activity
 
     @Provides
     fun provideContext(@ApplicationContext context: Context) = context
