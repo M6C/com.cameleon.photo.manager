@@ -7,6 +7,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
+import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @Module
@@ -15,9 +16,18 @@ object ApiModule {
 
     @Provides
     @Singleton
+    @ApiGoogleOAuth
     fun provideGoogleOAuthApi(@RetrofitOAuth retrofit: Retrofit): GoogleOAuthApi = retrofit.create(GoogleOAuthApi::class.java)
         .also {
             println("-----------------------> provideGoogleOAuthApi GooglePhotosApi:$it retrofit:$retrofit")
+        }
+
+    @Provides
+    @Singleton
+    @ApiGoogleOAuthDirect
+    fun provideGoogleOAuthDirectApi(@RetrofitOAuthDirect retrofit: Retrofit): GoogleOAuthApi = retrofit.create(GoogleOAuthApi::class.java)
+        .also {
+            println("-----------------------> provideGoogleOAuthDirectApi GooglePhotosApi:$it retrofit:$retrofit")
         }
 
     @Provides
@@ -27,3 +37,10 @@ object ApiModule {
             println("-----------------------> provideGooglePhotoApi GooglePhotosApi:$it retrofit:$retrofit")
         }
 }
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class ApiGoogleOAuth
+
+@Retention(AnnotationRetention.BINARY)
+annotation class ApiGoogleOAuthDirect

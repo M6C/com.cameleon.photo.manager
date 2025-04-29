@@ -16,6 +16,8 @@ interface GoogleOAuthApi {
         @Field("redirect_uri") redirectUri: String
     ): TokenResponse
 
+    @FormUrlEncoded
+    @POST("token")
     suspend fun refreshToken(
         @Field("client_id") clientId: String,
         @Field("client_secret") clientSecret: String,

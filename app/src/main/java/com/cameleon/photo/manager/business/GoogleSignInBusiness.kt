@@ -6,13 +6,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import com.cameleon.photo.manager.api.GoogleOAuthApi
+import com.cameleon.photo.manager.repository.TokenRepository
 import com.cameleon.photo.manager.ui.activity.MainActivity.Companion.TAG
 import com.cameleon.photo.manager.view.page.photo.PhotosViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import javax.inject.Inject
 
-class GoogleSignInBusiness @Inject constructor(private val googleOAuthApi: GoogleOAuthApi, private val tokenBusiness: TokenBusiness) {
+class GoogleSignInBusiness @Inject constructor(private val googleOAuthApi: GoogleOAuthApi, private val tokenRepository: TokenRepository) {
 
     // Google Sign-In configuration
     fun singIn(activity: ComponentActivity, handleSignInResult: (GoogleSignInAccount) -> Unit): ActivityResultLauncher<Intent> =
@@ -58,8 +59,8 @@ class GoogleSignInBusiness @Inject constructor(private val googleOAuthApi: Googl
         exchangeAuthCodeForTokens(account.serverAuthCode, onSignIn)
 
     suspend fun exchangeAuthCodeForTokens(code: String?, onSignIn: () -> Unit) {
-        val clientId = tokenBusiness.getServerClientId()
-        val clientSecret = tokenBusiness.getClientSecret()
+        val clientId = tokenRepository.getServerClientId()
+        val clientSecret = tokenRepository.getClientSecret()
         try {
             if (code == null)
                 return
@@ -74,14 +75,14 @@ class GoogleSignInBusiness @Inject constructor(private val googleOAuthApi: Googl
             )
             val accessToken = response.accessToken
             val refreshToken = response.refreshToken
-            tokenBusiness.saveTokens(
+            tokenRepository.saveTokens(
                 accessToken = accessToken,
                 refreshToken = refreshToken
             )
 
             onSignIn()
         } catch (e: RuntimeException) {
-            Log.e(PhotosViewModel.TAG, "Google Exchange Auth For Token Api Call Failed '${e.message}\nWith Secret:\n${tokenBusiness.showSecrets()}With Token:\n${tokenBusiness.showTokens()}", e)
+            Log.e(PhotosViewModel.TAG, "Google Exchange Auth For Token Api Call Failed '${e.message}\n${tokenRepository.showSecretsAndTokens()}", e)
         }
     }
 }

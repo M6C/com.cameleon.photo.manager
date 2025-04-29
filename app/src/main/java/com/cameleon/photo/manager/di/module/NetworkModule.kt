@@ -1,12 +1,10 @@
 package com.cameleon.photo.manager.di.module
 
-import android.content.Context
 import com.cameleon.photo.manager.api.interceptor.AuthInterceptor
-import com.cameleon.photo.manager.di.module.BusinessModule.provideTokenBusiness
+import com.cameleon.photo.manager.business.TokenBusiness
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -36,7 +34,7 @@ object NetworkModule {
     fun provideBaseUrlPhoto(): String = "https://photoslibrary.googleapis.com/"
 
     @Provides
-    fun provideAuthInterceptor(@ApplicationContext context: Context): AuthInterceptor = AuthInterceptor(provideTokenBusiness(context))
+    fun provideAuthInterceptor(tokenBusiness: TokenBusiness): AuthInterceptor = AuthInterceptor(tokenBusiness)
 
     @Singleton
     @Provides
@@ -48,18 +46,30 @@ object NetworkModule {
 
     @Singleton
     @Provides
+    @RetrofitOAuthDirect
+    fun providesRetrofitOAuthDirect(@BaseUrlOAuth baseUrl: String): Retrofit = buildRetrofit(baseUrl)
+        .also {
+            println("-----------------------> providesRetrofitOAuthDirect $it")
+        }
+
+    @Singleton
+    @Provides
     @RetrofitPhoto
     fun providesRetrofitPhoto(@BaseUrlPhoto baseUrl: String, interceptor: AuthInterceptor): Retrofit = buildRetrofit(baseUrl, interceptor)
         .also {
             println("-----------------------> providesRetrofitPhoto $it interceptor:${interceptor}")
         }
 
-    private fun buildRetrofit(baseUrl: String, interceptor: Interceptor): Retrofit {
+    private fun buildRetrofit(baseUrl: String, interceptor: Interceptor? = null): Retrofit {
         val okHttpBuilder = OkHttpClient.Builder()
-        val httpLoggingInterceptor = HttpLoggingInterceptor()
-        httpLoggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-//        okHttpBuilder.addInterceptor(httpLoggingInterceptor)
-        okHttpBuilder.addInterceptor(interceptor)
+            .also {
+                interceptor?.let(it::addInterceptor)
+            }
+            .also {
+                val httpLoggingInterceptor = HttpLoggingInterceptor()
+                httpLoggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+                it.addInterceptor(httpLoggingInterceptor)
+            }
 
         return Retrofit.Builder()
             .baseUrl(baseUrl)
@@ -67,6 +77,9 @@ object NetworkModule {
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .client(okHttpBuilder.build())
             .build()
+            .also {
+                println("-----------------------> providesRetrofitPhoto buildRetrofit $it")
+            }
     }
 }
 
@@ -81,6 +94,9 @@ annotation class BaseUrlPhoto
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class RetrofitOAuth
+
+@Retention(AnnotationRetention.BINARY)
+annotation class RetrofitOAuthDirect
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)

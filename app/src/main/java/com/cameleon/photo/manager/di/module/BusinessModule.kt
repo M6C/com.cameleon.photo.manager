@@ -1,17 +1,16 @@
 package com.cameleon.photo.manager.di.module
 
-import android.content.Context
 import com.cameleon.photo.manager.api.GoogleOAuthApi
 import com.cameleon.photo.manager.api.GooglePhotosApi
 import com.cameleon.photo.manager.api.interceptor.AuthInterceptor
 import com.cameleon.photo.manager.business.GooglePhotoBusiness
 import com.cameleon.photo.manager.business.GoogleSignInBusiness
 import com.cameleon.photo.manager.business.TokenBusiness
+import com.cameleon.photo.manager.repository.TokenRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
-import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Singleton
 
 @Module
@@ -20,11 +19,11 @@ object BusinessModule {
 
     @Provides
     @Singleton
-    fun provideTokenBusiness(@ApplicationContext context: Context): TokenBusiness = TokenBusiness(context)
+    fun provideTokenBusiness(tokenRepository: TokenRepository): TokenBusiness = TokenBusiness(tokenRepository)
 
     @Provides
     @Singleton
-    fun provideGoogleSignInBusiness(googleOAuthApi: GoogleOAuthApi, tokenBusiness: TokenBusiness): GoogleSignInBusiness = GoogleSignInBusiness(googleOAuthApi, tokenBusiness)
+    fun provideGoogleSignInBusiness(@ApiGoogleOAuth googleOAuthApi: GoogleOAuthApi, tokenRepository: TokenRepository): GoogleSignInBusiness = GoogleSignInBusiness(googleOAuthApi, tokenRepository)
 
     @Provides
     @Singleton
