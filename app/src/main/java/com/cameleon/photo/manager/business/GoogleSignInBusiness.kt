@@ -10,11 +10,9 @@ import com.cameleon.photo.manager.ui.activity.MainActivity.Companion.TAG
 import com.cameleon.photo.manager.view.page.photo.PhotosViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import retrofit2.Retrofit
 import javax.inject.Inject
 
-class GoogleSignInBusiness @Inject constructor(private val clientHttp: Retrofit, private val googleSignInOptions : GoogleSignInOptions, private val tokenBusiness: TokenBusiness) {
+class GoogleSignInBusiness @Inject constructor(private val googleOAuthApi: GoogleOAuthApi, private val tokenBusiness: TokenBusiness) {
 
     // Google Sign-In configuration
     fun singIn(activity: ComponentActivity, handleSignInResult: (GoogleSignInAccount) -> Unit): ActivityResultLauncher<Intent> =
@@ -22,7 +20,8 @@ class GoogleSignInBusiness @Inject constructor(private val clientHttp: Retrofit,
             it
                 .run { data }
                 ?.let ( GoogleSignIn::getSignedInAccountFromIntent )
-                ?.run { result }
+//                ?.run { try { result } catch (e : RuntimeException) { Log.e(TAG, "SignedIn Account Result Error:${e.message}", e); null} }
+                ?.runCatching { result }?.takeIf { it.isSuccess }?.run { this.getOrNull() }
                 ?.let { handleSignInResult.invoke(it) }
         }
 
@@ -31,9 +30,9 @@ class GoogleSignInBusiness @Inject constructor(private val clientHttp: Retrofit,
 //        signInLauncher.launch(client.signInIntent)
 //    }
 
-    suspend fun handleSignInResult(account: GoogleSignInAccount, serverClientId: String, clientSecret : String, onSignIn: () -> Unit) {
+    suspend fun handleSignInResult(account: GoogleSignInAccount, onSignIn: () -> Unit) {
         try {
-            exchangeAuthCodeForTokens(account, serverClientId, clientSecret, onSignIn)
+            exchangeAuthCodeForTokens(account, onSignIn)
         } catch (e: RuntimeException) {
             when {
                 e.message?.contains("com.google.android.gms.common.api.ApiException") ?: false -> {
@@ -42,14 +41,6 @@ class GoogleSignInBusiness @Inject constructor(private val clientHttp: Retrofit,
                         Regex("[0-9]+").findAll(str).lastOrNull()?.value?.toInt()
                     } ?: -1
 
-//                    val error = when (code) {
-//                        7 -> GoogleSignInError.INTERNET_CONNECTION_ERROR()
-//                        10 -> GoogleSignInError.OAUTH2_CERTIFICATE_ERROR()
-//                        12500 -> GoogleSignInError.ACCESS_ERROR_API()
-//                        12501 -> GoogleSignInError.ACCESS_BLOCKED_API()
-//                        12502 ->  GoogleSignInError.AUTHENTICATION_ALREADY_CALL()
-//                        else -> GoogleSignInError.UNKOWN_ERROR(code, e)
-//                    }
                     throw
                         GoogleSignInError.findByCode(code)
                             .also { Log.e(TAG, it.technicalMessage, e) }
@@ -57,24 +48,27 @@ class GoogleSignInBusiness @Inject constructor(private val clientHttp: Retrofit,
                 }
                 else -> {
                     Log.e(TAG, "Sign-in failed: ${e.message}", e)
-//                    Toast.makeText(this, "Sign-in failed: ${e.message}", Toast.LENGTH_LONG).show()
+                    throw e
                 }
             }
         }
     }
 
-    suspend fun exchangeAuthCodeForTokens(account: GoogleSignInAccount, clientId: String, clientSecret: String, onSignIn: () -> Unit) {
+    suspend fun exchangeAuthCodeForTokens(account: GoogleSignInAccount, onSignIn: () -> Unit) =
+        exchangeAuthCodeForTokens(account.serverAuthCode, onSignIn)
+
+    suspend fun exchangeAuthCodeForTokens(code: String?, onSignIn: () -> Unit) {
+        val clientId = tokenBusiness.getServerClientId()
+        val clientSecret = tokenBusiness.getClientSecret()
         try {
-            val authCode = account.serverAuthCode
-            if (authCode == null)
+            if (code == null)
                 return
 
-            val api = clientHttp.create(GoogleOAuthApi::class.java)
-
-            val response = api.getTokens(
+            println("\n----------------------->\n-----------------------> GoogleSignInBusiness exchangeAuthCodeForTokens code:$code\n----------------------->\n")
+            val response = googleOAuthApi.getTokens(
                 clientId = clientId,
                 clientSecret = clientSecret,
-                code = authCode,
+                code = code,
                 grantType = "authorization_code",
                 redirectUri = ""
             )
@@ -87,8 +81,7 @@ class GoogleSignInBusiness @Inject constructor(private val clientHttp: Retrofit,
 
             onSignIn()
         } catch (e: RuntimeException) {
-            val accessToken = tokenBusiness.getAccessToken()
-            Log.e(PhotosViewModel.TAG, "Google Exchange Auth For Token Api Call Failed '${e.message}\nWith account:$account clientId:$clientId clientSecret:$clientSecret Auth Token:$accessToken", e)
+            Log.e(PhotosViewModel.TAG, "Google Exchange Auth For Token Api Call Failed '${e.message}\nWith Secret:\n${tokenBusiness.showSecrets()}With Token:\n${tokenBusiness.showTokens()}", e)
         }
     }
 }

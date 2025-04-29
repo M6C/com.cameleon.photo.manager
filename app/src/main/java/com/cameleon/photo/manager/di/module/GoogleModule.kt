@@ -3,8 +3,10 @@ package com.cameleon.photo.manager.di.module
 import android.content.Context
 import androidx.activity.ComponentActivity
 import com.cameleon.photo.manager.R
-import com.cameleon.photo.manager.di.module.BusinessModule.provideAuthInterceptor
 import com.cameleon.photo.manager.di.module.BusinessModule.provideTokenBusiness
+import com.cameleon.photo.manager.di.module.NetworkModule.provideAuthInterceptor
+import com.cameleon.photo.manager.di.module.NetworkModule.provideBaseUrlOAuth
+import com.cameleon.photo.manager.di.module.NetworkModule.providesRetrofitOAuth
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.Scope
@@ -17,8 +19,6 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Qualifier
 
 @Module
@@ -35,12 +35,15 @@ object GoogleModule {
     @Retention(AnnotationRetention.BINARY)
     annotation class HttpClientAuthTokenInterceptor
 
+//    @Provides
+//    fun provideHttpClient(@ApplicationContext context: Context) =
+//        Retrofit.Builder()
+//            .baseUrl("https://oauth2.googleapis.com/")
+//            .addConverterFactory(GsonConverterFactory.create())
+//            .build()
+
     @Provides
-    fun provideHttpClient(@ApplicationContext context: Context) =
-        Retrofit.Builder()
-            .baseUrl("https://oauth2.googleapis.com/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
+    fun provideHttpClient(@ApplicationContext context: Context) = providesRetrofitOAuth(provideBaseUrlOAuth(), provideAuthInterceptor(context))
 
     @Provides
     fun provideGoogleSignIn(@ApplicationContext context: Context): GoogleSignInOptions =

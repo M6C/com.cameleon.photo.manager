@@ -28,9 +28,9 @@ fun GooglePhotosScreen(viewModel: GooglePhotosViewModel, loadNextPhotoBefore: In
 
     LaunchedEffect(token) {
         // Fetch 1st Photo only on 1st Componnent Composition
-        if (token.isNotEmpty()) {
-            viewModel.fetchMediaItems(token)
-        }
+//        if (token.isNotEmpty()) {
+            viewModel.fetchMediaItems()
+//        }
     }
 
     val listState = rememberLazyStaggeredGridState()
@@ -38,8 +38,8 @@ fun GooglePhotosScreen(viewModel: GooglePhotosViewModel, loadNextPhotoBefore: In
         snapshotFlow { listState.firstVisibleItemIndex + listState.layoutInfo.visibleItemsInfo.size }
             .distinctUntilChanged()
             .collect { visibleItemsCount ->
-                if (visibleItemsCount >= viewModel.mediaItems.size - loadNextPhotoBefore && !viewModel.isLoading && viewModel.nextPageToken.isNotEmpty()) {
-                    viewModel.fetchMediaItems(token)
+                if (visibleItemsCount >= viewModel.mediaItems.size - loadNextPhotoBefore && !viewModel.isLoading && viewModel.canLoadNextPage()) {
+                    viewModel.fetchMediaItems()
                 }
             }
     }
