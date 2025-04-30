@@ -13,7 +13,6 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
@@ -23,14 +22,14 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 
 
 @Composable
-fun GooglePhotosScreen(viewModel: GooglePhotosViewModel, loadNextPhotoBefore: Int = 5) {
-    val token by remember { mutableStateOf(viewModel.getAccessToken() ?: "") }
+fun GooglePhotosScreen(viewModel: GooglePhotosViewModel, loadNextPhotoBefore: Int = 20) {
+    val token by remember { viewModel.accessToken }
 
     LaunchedEffect(token) {
         // Fetch 1st Photo only on 1st Componnent Composition
-//        if (token.isNotEmpty()) {
+        if (token.isNotEmpty()) {
             viewModel.fetchMediaItems()
-//        }
+        }
     }
 
     val listState = rememberLazyStaggeredGridState()

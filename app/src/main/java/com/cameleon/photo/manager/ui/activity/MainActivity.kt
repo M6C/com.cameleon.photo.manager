@@ -49,7 +49,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         viewModel.singIn(this) {
-            Log.i(TAG, "-----> viewModel.singIn onSingIn Callback")
+            Log.i(TAG, "-----> viewModel.singIn afterSignIn Callback")
+            viewModel.launchSingIn(this@MainActivity)
         }
 
         enableEdgeToEdge()

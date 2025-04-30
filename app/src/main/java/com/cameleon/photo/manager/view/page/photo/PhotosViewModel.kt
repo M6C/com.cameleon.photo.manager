@@ -8,7 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cameleon.photo.manager.R
 import com.cameleon.photo.manager.business.GoogleSignInBusiness
 import com.cameleon.photo.manager.business.GoogleSignInError
 import com.cameleon.photo.manager.business.GoogleSignInError.INTERNET_CONNECTION_ERROR
@@ -54,12 +53,13 @@ class PhotosViewModel @Inject constructor(private val googleSignInBusiness: Goog
 
     private var signInLauncher: ActivityResultLauncher<Intent>? = null
 
-    fun singIn(activity: ComponentActivity, onSignIn: () -> Unit ) {
+    fun singIn(activity: ComponentActivity, afterSignIn: () -> Unit) {
         try {
             signInLauncher =
                 googleSignInBusiness.singIn(activity) {
-                    handleSignInResult(it, activity, onSignIn)
+                    handleSignInResult(it)
                 }
+            afterSignIn()
         } catch (e: GoogleSignInException) {
             onGoogleSignInException(e)
         }
@@ -78,7 +78,7 @@ class PhotosViewModel @Inject constructor(private val googleSignInBusiness: Goog
         }
     }
 
-    private fun handleSignInResult(account: GoogleSignInAccount, activity: ComponentActivity, onSignIn: () -> Unit) {
+    private fun handleSignInResult(account: GoogleSignInAccount) {
         authToken = tokenBusiness.getAccessToken()
         _isSignedIn.value = !authToken.isNullOrEmpty()
 
