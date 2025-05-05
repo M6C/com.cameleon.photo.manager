@@ -1,5 +1,6 @@
 package com.cameleon.photo.manager.view.page.photo
 
+import android.app.Activity
 import android.content.Intent
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -65,7 +66,7 @@ class PhotosViewModel @Inject constructor(private val googleSignInBusiness: Goog
         }
     }
 
-    fun launchSingIn(activity: ComponentActivity) {
+    fun launchSingIn(activity: Activity) {
         val client = GoogleSignIn.getClient(activity, googleSignInOptions)
         signInLauncher?.launch(client.signInIntent)
     }

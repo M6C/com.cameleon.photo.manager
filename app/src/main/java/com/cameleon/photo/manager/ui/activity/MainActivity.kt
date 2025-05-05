@@ -7,7 +7,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,13 +15,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cameleon.photo.manager.navigation.MainAppNavHost
 import com.cameleon.photo.manager.ui.theme.PhotoManagerTheme
 import com.cameleon.photo.manager.view.page.photo.GooglePhotosScreen
 import com.cameleon.photo.manager.view.page.photo.GooglePhotosViewModel
@@ -49,7 +46,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         viewModel.singIn(this) {
-            Log.i(TAG, "-----> viewModel.singIn afterSignIn Callback")
             viewModel.launchSingIn(this@MainActivity)
         }
 
@@ -89,12 +85,10 @@ class MainActivity : ComponentActivity() {
 
                         if (isSignedIn.value) {
                             Toast.makeText(this@MainActivity, "is Signed In", Toast.LENGTH_SHORT).show()
-                            GooglePhotosScreen(viewModelPhoto)
+                            GooglePhotosScreen()
                         } else {
                             Toast.makeText(this@MainActivity, "is Signed Out", Toast.LENGTH_SHORT).show()
-                            LoginScreen(onLoginClicked = {
-                                viewModel.launchSingIn(this@MainActivity)
-                            })
+                            MainAppNavHost(lifecycleOwner = this@MainActivity)
                         }
                     }
                 }
@@ -103,19 +97,19 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun LoginScreen(onLoginClicked: () -> Unit) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Button(onClick = onLoginClicked) {
-            Text("Sign in with Google")
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun LoginScreenPreview() {
-    PhotoManagerTheme {
-        LoginScreen() {}
-    }
-}
+//@Composable
+//fun LoginScreen(onLoginClicked: () -> Unit) {
+//    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+//        Button(onClick = onLoginClicked) {
+//            Text("Sign in with Google")
+//        }
+//    }
+//}
+//
+//@Preview(showBackground = true)
+//@Composable
+//fun LoginScreenPreview() {
+//    PhotoManagerTheme {
+//        LoginScreen() {}
+//    }
+//}
