@@ -24,7 +24,7 @@ class TokenRepository @Inject constructor(private val context: Context, private 
             grantType = "refresh_token"
         )
 
-    fun saveTokens(accessToken: String, refreshToken: String) {
+    fun saveTokens(accessToken: String?, refreshToken: String?) {
         getPrefs().edit().apply {
             putString(ACCESS_TOKEN_KEY, accessToken)
             putString(REFRESH_TOKEN_KEY, refreshToken)

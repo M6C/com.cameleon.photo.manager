@@ -8,7 +8,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import com.cameleon.photo.manager.api.GoogleOAuthApi
 import com.cameleon.photo.manager.repository.TokenRepository
 import com.cameleon.photo.manager.ui.activity.MainActivity.Companion.TAG
-import com.cameleon.photo.manager.view.page.photo.PhotosViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import javax.inject.Inject
@@ -82,7 +81,7 @@ class GoogleSignInBusiness @Inject constructor(private val googleOAuthApi: Googl
 
             onSignIn()
         } catch (e: RuntimeException) {
-            Log.e(PhotosViewModel.TAG, "Google Exchange Auth For Token Api Call Failed '${e.message}\n${tokenRepository.showSecretsAndTokens()}", e)
+            Log.e(TAG, "Google Exchange Auth For Token Api Call Failed '${e.message}\n${tokenRepository.showSecretsAndTokens()}", e)
         }
     }
 }

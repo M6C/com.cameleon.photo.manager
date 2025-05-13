@@ -1,6 +1,7 @@
 package com.cameleon.photo.manager.business
 
 import android.util.Log
+import com.cameleon.photo.manager.bean.TokenResponse
 import com.cameleon.photo.manager.repository.TokenRepository
 import com.cameleon.photo.manager.ui.activity.MainActivity.Companion.TAG
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +24,7 @@ class TokenBusiness @Inject constructor(private val tokenRepository: TokenReposi
 
         return withContext(Dispatchers.IO) {
             try {
-                val response = tokenRepository.refreshToken(
+                val response: TokenResponse = tokenRepository.refreshToken(
                     refreshToken = refreshToken,
                 )
                 tokenRepository.saveTokens(
