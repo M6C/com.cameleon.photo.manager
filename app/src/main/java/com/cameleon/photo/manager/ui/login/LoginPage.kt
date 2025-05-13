@@ -13,7 +13,7 @@ import com.cameleon.photo.manager.ui.theme.PhotoManagerTheme
 
 @Composable
 fun LoginPage(modifier: Modifier = Modifier, onLoginClicked: () -> Unit) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Button(onClick = onLoginClicked) {
             Text("Sign in with Google")
         }

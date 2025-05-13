@@ -83,13 +83,15 @@ class PhotosViewModel @Inject constructor(private val googleSignInBusiness: Goog
         authToken = tokenBusiness.getAccessToken()
         _isSignedIn.value = !authToken.isNullOrEmpty()
 
+        println("-----------------------> handleSignInResult viewModel:$this")
         viewModelScope.launch {
             try {
                 googleSignInBusiness.handleSignInResult(account) {
+println("-----------------------> handleSignInResult handleSignInResult viewModel:${this@PhotosViewModel}")
                     viewModelScope.launch {
                         _onShowUserMessage.emit("Login Successful")
+                        _isSignedIn.value = true
                     }
-                    this@PhotosViewModel._isSignedIn.value = true
                 }
             } catch (e: GoogleSignInException) {
                 onGoogleSignInException(e)

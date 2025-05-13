@@ -1,7 +1,6 @@
 package com.cameleon.photo.manager.ui.activity
 
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -19,9 +18,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.cameleon.photo.manager.navigation.MainAppNavHost
+import com.cameleon.photo.manager.navigation.NavigationRoutes
 import com.cameleon.photo.manager.ui.theme.PhotoManagerTheme
-import com.cameleon.photo.manager.view.page.photo.GooglePhotosScreen
 import com.cameleon.photo.manager.view.page.photo.GooglePhotosViewModel
 import com.cameleon.photo.manager.view.page.photo.PhotosViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -51,7 +52,7 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
         setContent {
-            val photos = viewModel.photos.collectAsState().value
+            val navController: NavHostController = rememberNavController()
 
             viewModel.getUserMessage()?.let {
                 Toast.makeText(applicationContext, "Message : $it", Toast.LENGTH_SHORT).show()
@@ -62,7 +63,7 @@ class MainActivity : ComponentActivity() {
 
             PhotoManagerTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    val isSignedIn = viewModel.isSignedIn.collectAsState()
+//                    val isSignedIn = viewModel.isSignedIn.collectAsState()
 
                     Column(modifier = Modifier
                         .padding(innerPadding)
@@ -78,18 +79,15 @@ class MainActivity : ComponentActivity() {
                             }) {
                                 Text(text = "Logout")
                             }
-//                            LoginScreen(onLoginClicked = {
-//                                viewModel.launchSingIn(this@MainActivity)
-//                            })
                         }
 
-                        if (isSignedIn.value) {
-                            Toast.makeText(this@MainActivity, "is Signed In", Toast.LENGTH_SHORT).show()
-                            GooglePhotosScreen()
-                        } else {
-                            Toast.makeText(this@MainActivity, "is Signed Out", Toast.LENGTH_SHORT).show()
-                            MainAppNavHost(lifecycleOwner = this@MainActivity)
-                        }
+//                        if (isSignedIn.value) {
+//                            Toast.makeText(this@MainActivity, "is Signed In", Toast.LENGTH_SHORT).show()
+//                            navController.navigate(route = NavigationRoutes.Authenticated.PhotoAllRoute.route)
+//                        } else {
+//                            Toast.makeText(this@MainActivity, "is Signed Out", Toast.LENGTH_SHORT).show()
+                            MainAppNavHost(lifecycleOwner = this@MainActivity, navController = navController)
+//                        }
                     }
                 }
             }
