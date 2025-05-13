@@ -15,4 +15,14 @@ interface GoogleOAuthApi {
         @Field("grant_type") grantType: String,
         @Field("redirect_uri") redirectUri: String
     ): TokenResponse
+
+    @FormUrlEncoded
+    @POST("token")
+    suspend fun refreshToken(
+        @Field("client_id") clientId: String,
+        @Field("client_secret") clientSecret: String,
+        @Field("refresh_token") refreshToken: String,
+        @Field("grant_type") grantType: String
+    ): TokenResponse
+
 }

@@ -49,7 +49,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         viewModel.singIn(this) {
-            Log.i(TAG, "-----> viewModel.singIn onSingIn Callback")
+            Log.i(TAG, "-----> viewModel.singIn afterSignIn Callback")
+            viewModel.launchSingIn(this@MainActivity)
         }
 
         enableEdgeToEdge()
@@ -81,11 +82,16 @@ class MainActivity : ComponentActivity() {
                             }) {
                                 Text(text = "Logout")
                             }
+//                            LoginScreen(onLoginClicked = {
+//                                viewModel.launchSingIn(this@MainActivity)
+//                            })
                         }
 
                         if (isSignedIn.value) {
+                            Toast.makeText(this@MainActivity, "is Signed In", Toast.LENGTH_SHORT).show()
                             GooglePhotosScreen(viewModelPhoto)
                         } else {
+                            Toast.makeText(this@MainActivity, "is Signed Out", Toast.LENGTH_SHORT).show()
                             LoginScreen(onLoginClicked = {
                                 viewModel.launchSingIn(this@MainActivity)
                             })

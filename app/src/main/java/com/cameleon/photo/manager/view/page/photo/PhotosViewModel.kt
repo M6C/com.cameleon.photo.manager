@@ -8,7 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cameleon.photo.manager.R
 import com.cameleon.photo.manager.business.GoogleSignInBusiness
 import com.cameleon.photo.manager.business.GoogleSignInError
 import com.cameleon.photo.manager.business.GoogleSignInError.INTERNET_CONNECTION_ERROR
@@ -54,11 +53,16 @@ class PhotosViewModel @Inject constructor(private val googleSignInBusiness: Goog
 
     private var signInLauncher: ActivityResultLauncher<Intent>? = null
 
-    fun singIn(activity: ComponentActivity, onSignIn: () -> Unit ) {
-        signInLauncher =
-            googleSignInBusiness.singIn(activity) {
-                handleSignInResult(it, activity, onSignIn)
-            }
+    fun singIn(activity: ComponentActivity, afterSignIn: () -> Unit) {
+        try {
+            signInLauncher =
+                googleSignInBusiness.singIn(activity) {
+                    handleSignInResult(it)
+                }
+            afterSignIn()
+        } catch (e: GoogleSignInException) {
+            onGoogleSignInException(e)
+        }
     }
 
     fun launchSingIn(activity: ComponentActivity) {
@@ -74,36 +78,54 @@ class PhotosViewModel @Inject constructor(private val googleSignInBusiness: Goog
         }
     }
 
-    private fun handleSignInResult(account: GoogleSignInAccount, activity: ComponentActivity, onSignIn: () -> Unit) {
+    private fun handleSignInResult(account: GoogleSignInAccount) {
         authToken = tokenBusiness.getAccessToken()
         _isSignedIn.value = !authToken.isNullOrEmpty()
 
         viewModelScope.launch {
             try {
-                googleSignInBusiness.handleSignInResult(account, activity.getString(R.string.server_client_id), activity.getString(R.string.client_secret)) {
+                googleSignInBusiness.handleSignInResult(account) {
                     viewModelScope.launch {
                         _onShowUserMessage.emit("Login Successful")
                     }
                     this@PhotosViewModel._isSignedIn.value = true
                 }
             } catch (e: GoogleSignInException) {
-                Log.e(TAG, e.message, e)
-                _onShowUserError.value =
-                    when (e.error) {
-                        is INTERNET_CONNECTION_ERROR -> "Sign-in failed - ApiException - Internet Connection Error"
-                        is GoogleSignInError.OAUTH2_CERTIFICATE_ERROR -> "Sign-in failed - ApiException - SHA-1 of signing certificate Required in Google Cloud Console. Create an OAuth2 client and API key for your app"
-                        is GoogleSignInError.ACCESS_ERROR_API -> "Sign-in failed - ApiException - Access/Authorization Error API"
-                        is GoogleSignInError.ACCESS_BLOCKED_API -> "Sign-in failed - ApiException - Access Blocked API"
-                        is GoogleSignInError.AUTHENTICATION_ALREADY_CALL -> "Sign-in failed - ApiException - An Other API Authentication Already Running"
-                        is GoogleSignInError.UNKOWN_ERROR -> "Sign-in failed - ApiException - Unknown Code:${e.error.code}"
-                    } + " : ${e.message}"
-
-                Timer().schedule(object : TimerTask() {
-                    override fun run() {
-                        this@PhotosViewModel._isSignedIn.value = false
-                    }
-                }, 5_000)
+                onGoogleSignInException(e)
+            } catch (e: RuntimeException) {
+                onRuntimeException(e)
             }
         }
+    }
+
+    private fun onGoogleSignInException(e : GoogleSignInException) {
+        Log.e(TAG, e.message, e)
+        _onShowUserError.value = when (e.error) {
+            is INTERNET_CONNECTION_ERROR -> "Sign-in failed - ApiException - Internet Connection Error"
+            is GoogleSignInError.OAUTH2_CERTIFICATE_ERROR -> "Sign-in failed - ApiException - SHA-1 of signing certificate Required in Google Cloud Console. Create an OAuth2 client and API key for your app"
+            is GoogleSignInError.ACCESS_ERROR_API -> "Sign-in failed - ApiException - Access/Authorization Error API"
+            is GoogleSignInError.ACCESS_BLOCKED_API -> "Sign-in failed - ApiException - Access Blocked API"
+            is GoogleSignInError.AUTHENTICATION_ALREADY_CALL -> "Sign-in failed - ApiException - An Other API Authentication Already Running"
+            is GoogleSignInError.UNKOWN_ERROR -> "Sign-in failed - ApiException - Unknown Code:${e.error.code}"
+        } + " : ${e.message}"
+
+        waitAfterException()
+    }
+
+    private fun onRuntimeException(e : RuntimeException) {
+//        Toast.makeText(this, "Sign-in failed: ${e.message}", Toast.LENGTH_LONG).show()
+
+        Log.e(TAG, e.message, e)
+        _onShowUserError.value = e.message
+
+        waitAfterException()
+    }
+
+    private fun waitAfterException() {
+        Timer().schedule(object : TimerTask() {
+            override fun run() {
+                this@PhotosViewModel._isSignedIn.value = false
+            }
+        }, 5_000)
     }
 }
