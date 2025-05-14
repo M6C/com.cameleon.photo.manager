@@ -88,6 +88,14 @@ dependencies {
     implementation("io.reactivex.rxjava2:rxjava:2.2.8")
     implementation("io.reactivex.rxjava2:rxandroid:2.1.1")
     implementation("com.squareup.retrofit2:adapter-rxjava2:2.9.0")
+
+    implementation("androidx.navigation:navigation-runtime-ktx:2.8.1")
+    implementation("androidx.navigation:navigation-compose:2.8.4")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+
+    implementation("androidx.navigation:navigation-runtime-ktx:2.8.1")
+    implementation("androidx.navigation:navigation-compose:2.8.4")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 }
 
 // Allow references to generated code
