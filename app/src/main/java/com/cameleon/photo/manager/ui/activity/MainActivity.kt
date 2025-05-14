@@ -70,8 +70,9 @@ class MainActivity : ComponentActivity() {
                             if (isSignedIn.value) {
                                 viewModel.logOut()
                                 viewModelPhoto.logOut()
+                            } else {
+                                viewModel.launchSingIn(this@MainActivity)
                             }
-                            Toast.makeText(this@MainActivity, "Logout Successful", Toast.LENGTH_SHORT).show()
                         }
                     }
                 ) { innerPadding ->

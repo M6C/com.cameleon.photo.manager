@@ -25,16 +25,16 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Composable
 fun GooglePhotosPage(token: MutableState<String>, mediaItems: List<String>, canLoadNextPhoto: (visibleItemsCount: Int) -> Boolean, onFetchMediaItems: () -> Unit, isLoading: () -> Boolean, onClickItem: (String) -> Unit) {
-    val token by remember { token }
+    val rememberToken by remember { token }
+    val listState = rememberLazyStaggeredGridState()
 
-    LaunchedEffect(token) {
-        // Fetch 1st Photo only on 1st Componnent Composition
-        if (token.isNotEmpty()) {
+    LaunchedEffect(rememberToken) {
+        // Fetch 1st Photo only on 1st Component Composition
+        if (rememberToken.isNotEmpty() && (mediaItems.isEmpty() || canLoadNextPhoto(listState.firstVisibleItemIndex))) {
             onFetchMediaItems()
         }
     }
 
-    val listState = rememberLazyStaggeredGridState()
     LaunchedEffect(listState) {
         snapshotFlow { listState.firstVisibleItemIndex + listState.layoutInfo.visibleItemsInfo.size }
             .distinctUntilChanged()
