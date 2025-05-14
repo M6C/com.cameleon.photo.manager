@@ -40,25 +40,16 @@ object NetworkModule {
     @Provides
     @RetrofitOAuth
     fun providesRetrofitOAuth(@BaseUrlOAuth baseUrl: String, interceptor: AuthInterceptor): Retrofit = buildRetrofit(baseUrl, interceptor)
-        .also {
-            println("-----------------------> providesRetrofitOAuth $it interceptor:${interceptor}")
-        }
 
     @Singleton
     @Provides
     @RetrofitOAuthDirect
     fun providesRetrofitOAuthDirect(@BaseUrlOAuth baseUrl: String): Retrofit = buildRetrofit(baseUrl)
-        .also {
-            println("-----------------------> providesRetrofitOAuthDirect $it")
-        }
 
     @Singleton
     @Provides
     @RetrofitPhoto
     fun providesRetrofitPhoto(@BaseUrlPhoto baseUrl: String, interceptor: AuthInterceptor): Retrofit = buildRetrofit(baseUrl, interceptor)
-        .also {
-            println("-----------------------> providesRetrofitPhoto $it interceptor:${interceptor}")
-        }
 
     private fun buildRetrofit(baseUrl: String, interceptor: Interceptor? = null): Retrofit {
         val okHttpBuilder = OkHttpClient.Builder()
@@ -77,9 +68,6 @@ object NetworkModule {
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .client(okHttpBuilder.build())
             .build()
-            .also {
-                println("-----------------------> providesRetrofitPhoto buildRetrofit $it")
-            }
     }
 }
 

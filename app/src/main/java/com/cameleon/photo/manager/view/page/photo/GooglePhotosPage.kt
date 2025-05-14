@@ -64,17 +64,6 @@ fun GooglePhotosPage(token: MutableState<String>, mediaItems: List<String>, canL
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
-//            item {
-//                if (isLoading()) {
-//                    Box(
-//                        modifier = Modifier.fillMaxWidth(),
-//                        contentAlignment = Alignment.Center
-//                    ) {
-//                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-//                    }
-//                }
-//            }
-
         }
     }
 }

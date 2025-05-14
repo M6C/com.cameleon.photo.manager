@@ -36,19 +36,15 @@ class PhotosViewModel @Inject constructor(private val googleSignInBusiness: Goog
     private val _isSignedIn = MutableStateFlow(false)
     val isSignedIn: StateFlow<Boolean> = _isSignedIn
 
-    private val _photos = MutableStateFlow<List<String>>(emptyList())
-    val photos: StateFlow<List<String>> = _photos
-
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading
-
     private val _onShowUserMessage = MutableStateFlow<String?>(null)
     @Composable
     fun getUserMessage() = _onShowUserMessage.collectAsState().value.also { if (it != null) { _onShowUserMessage.value = null } }
+    fun showUserMessage(message: String) = viewModelScope.launch { _onShowUserMessage.emit(message) }
 
     private val _onShowUserError = MutableStateFlow<String?>(null)
     @Composable
     fun getUserError() = _onShowUserError.collectAsState().value.also { if (it != null) { _onShowUserError.value = null } }
+    fun showUserError(message: String) = viewModelScope.launch { _onShowUserError.emit(message) }
 
     private var authToken: String? = null
 
@@ -76,6 +72,7 @@ class PhotosViewModel @Inject constructor(private val googleSignInBusiness: Goog
             tokenBusiness.clearTokens()
             authToken = null
             _isSignedIn.value = false
+            showUserMessage("Logout Successful")
         }
     }
 
@@ -86,9 +83,7 @@ class PhotosViewModel @Inject constructor(private val googleSignInBusiness: Goog
         viewModelScope.launch {
             try {
                 googleSignInBusiness.handleSignInResult(account) {
-                    viewModelScope.launch {
-                        _onShowUserMessage.emit("Login Successful")
-                    }
+                    showUserMessage("Login Successful")
                     this@PhotosViewModel._isSignedIn.value = true
                 }
             } catch (e: GoogleSignInException) {
@@ -114,10 +109,8 @@ class PhotosViewModel @Inject constructor(private val googleSignInBusiness: Goog
     }
 
     private fun onRuntimeException(e : RuntimeException) {
-//        Toast.makeText(this, "Sign-in failed: ${e.message}", Toast.LENGTH_LONG).show()
-
         Log.e(TAG, e.message, e)
-        _onShowUserError.value = e.message
+        showUserError("Sign-in failed: ${e.message}")
 
         waitAfterException()
     }

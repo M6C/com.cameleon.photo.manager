@@ -8,13 +8,8 @@ import okhttp3.Response
 
 class AuthInterceptor(private val tokenBusiness: TokenBusiness) : Interceptor {
 
-    init {
-        println("-----------------------> AuthInterceptor interceptor:$this")
-    }
-
     override fun intercept(chain: Interceptor.Chain): Response {
         val token = tokenBusiness.getAccessToken() // Récupérer le token
-println("----------------------->\n-----------------------> AuthInterceptor interceptor:${this}\n----------------------->    chain:${chain}\n----------------------->    url:${chain.request().url.toUrl()}\n----------------------->    token:${token}\n----------------------->    ${tokenBusiness.showSecretsAndTokens("\n----------------------->\n")}")
         val originalRequest = chain.request()
         val requestBuilder = originalRequest.newBuilder()
 
@@ -29,15 +24,12 @@ println("----------------------->\n-----------------------> AuthInterceptor inte
             response.close() // Fermer la réponse existante
 
             Log.i("GooglePhoto", "AuthInterceptor response code : ${response.code} -  Refresh Access Token (Old:$token)")
-println("-----------------------> AuthInterceptor response code : ${response.code} -  Refresh Access Token (Old:$token)")
 
             // Rafraîchir le token (bloquant)
             runBlocking { tokenBusiness.refreshAccessToken() }?.let { token ->
                 val newRequest = originalRequest.newBuilder()
                     .header("Authorization", "Bearer $token")
                     .build()
-
-println("-----------------------> AuthInterceptor tokenBusiness.showTokens after refreshAccessToken\n----------------------->    ${tokenBusiness.showSecretsAndTokens("\n----------------------->    ")}")
 
                 Log.i("GooglePhoto", "AuthInterceptor New Access Token : $token")
 

@@ -1,7 +1,6 @@
 package com.cameleon.photo.manager.api
 
 import retrofit2.http.GET
-import retrofit2.http.Header
 import retrofit2.http.Query
 
 data class MediaItem(val baseUrl: String)

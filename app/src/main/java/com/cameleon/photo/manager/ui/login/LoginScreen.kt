@@ -12,7 +12,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cameleon.photo.manager.extension.getActivity
-import com.cameleon.photo.manager.navigation.NavigationRoutes
 import com.cameleon.photo.manager.ui.theme.PhotoManagerTheme
 import com.cameleon.photo.manager.view.page.photo.PhotosViewModel
 

@@ -16,7 +16,6 @@ class GooglePhotoBusiness @Inject constructor(private val googlePhotosApi: Googl
     suspend fun fetchMediaItems(token: String?, pageSize: Int = 50) = flow {
         var json = ""
         try {
-println("-----------------------> GooglePhotoBusiness fetchMediaItems\n----------------------->    googlePhotosApi:$googlePhotosApi\n----------------------->    getPhotos nextPageToken:$nextPageToken")
             val response = googlePhotosApi.getPhotos(pageSize, nextPageToken)
             json = Gson().toJson(response)
             nextPageToken = response.nextPageToken

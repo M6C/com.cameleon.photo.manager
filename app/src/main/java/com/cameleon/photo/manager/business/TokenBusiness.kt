@@ -20,7 +20,6 @@ class TokenBusiness @Inject constructor(private val tokenRepository: TokenReposi
     suspend fun refreshAccessToken() : String? {
         val refreshToken: String = tokenRepository.getRefreshToken() ?: ""
         Log.e(TAG, "Refresh RefreshToken:$refreshToken")
-        println("----------------------->\n-----------------------> Refresh RefreshToken:$refreshToken")
 
         return withContext(Dispatchers.IO) {
             try {
@@ -35,11 +34,9 @@ class TokenBusiness @Inject constructor(private val tokenRepository: TokenReposi
             } catch (e: HttpException) {
                 val errorBody = e.response()?.errorBody()?.string()
                 Log.e(TAG, "Refresh AccessToken Failed: HTTP ${e.code()} - $errorBody", e)
-                println("-----------------------> Refresh AccessToken Failed: HTTP ${e.code()} - $errorBody")
                 null
             } catch (e: Exception) {
-                Log.e(TAG, "-----------------------> Unexpected error: ${e.message}", e)
-                println("-----------------------> Unexpected error: ${e.message}")
+                Log.e(TAG, "Unexpected error: ${e.message}", e)
                 null
             }
         }

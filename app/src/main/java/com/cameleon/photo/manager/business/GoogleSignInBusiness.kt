@@ -64,7 +64,6 @@ class GoogleSignInBusiness @Inject constructor(private val googleOAuthApi: Googl
             if (code == null)
                 return
 
-            println("\n----------------------->\n-----------------------> GoogleSignInBusiness exchangeAuthCodeForTokens code:$code\n----------------------->\n")
             val response = googleOAuthApi.getTokens(
                 clientId = clientId,
                 clientSecret = clientSecret,
