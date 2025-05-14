@@ -1,7 +1,7 @@
 package com.cameleon.photo.manager.view.page.photo
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,7 +17,6 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
@@ -25,7 +24,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 
 
 @Composable
-fun GooglePhotosPage(token: MutableState<String>, mediaItems: List<String>, canLoadNextPhoto: (visibleItemsCount: Int) -> Boolean, onFetchMediaItems: () -> Unit, isLoading: () -> Boolean) {
+fun GooglePhotosPage(token: MutableState<String>, mediaItems: List<String>, canLoadNextPhoto: (visibleItemsCount: Int) -> Boolean, onFetchMediaItems: () -> Unit, isLoading: () -> Boolean, onClickItem: (String) -> Unit) {
     val token by remember { token }
 
     LaunchedEffect(token) {
@@ -61,6 +60,7 @@ fun GooglePhotosPage(token: MutableState<String>, mediaItems: List<String>, canL
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(200.dp)
+                        .clickable { onClickItem(url) }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
