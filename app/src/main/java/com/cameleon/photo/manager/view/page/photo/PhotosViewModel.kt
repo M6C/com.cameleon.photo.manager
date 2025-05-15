@@ -62,6 +62,13 @@ class PhotosViewModel @Inject constructor(private val googleSignInBusiness: Goog
         }
     }
 
+    fun checkSignedIn(): Boolean {
+        authToken = tokenBusiness.getAccessToken()
+        _isSignedIn.value = !authToken.isNullOrEmpty()
+        return _isSignedIn.value
+
+    }
+
     fun launchSingIn(activity: Activity) {
         val client = GoogleSignIn.getClient(activity, googleSignInOptions)
         signInLauncher?.launch(client.signInIntent)

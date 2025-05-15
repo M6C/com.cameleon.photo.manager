@@ -44,7 +44,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         viewModel.singIn(this) {
-            viewModel.launchSingIn(this@MainActivity)
+            if (!viewModel.checkSignedIn()) {
+                viewModel.launchSingIn(this@MainActivity)
+            }
         }
 
         enableEdgeToEdge()
@@ -84,8 +86,10 @@ class MainActivity : ComponentActivity() {
                     ) {
                         MainAppNavHost(
                             navController = navController,
-                            lifecycleOwner = this@MainActivity,
-                            isSignedIn = isSignedIn.value
+                            isSignedIn = isSignedIn.value,
+                            onLoginClicked = {
+                                viewModel.launchSingIn(this@MainActivity)
+                            }
                         )
                     }
 

@@ -1,6 +1,5 @@
 package com.cameleon.photo.manager.navigation
 
-import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
@@ -16,7 +15,7 @@ import java.nio.charset.StandardCharsets
  * Login, registration, forgot password screens nav graph builder
  * (Unauthenticated user)
  */
-fun NavGraphBuilder.unauthenticatedGraph(navController: NavController, lifecycleOwner: LifecycleOwner) {
+fun NavGraphBuilder.unauthenticatedGraph(navController: NavController, onLoginClicked: () -> Unit = {}) {
 
     navigation (
         route = NavigationRoutes.Unauthenticated.NavigationRoute.route,
@@ -24,12 +23,7 @@ fun NavGraphBuilder.unauthenticatedGraph(navController: NavController, lifecycle
     ) {
         // Login
         composable(route = NavigationRoutes.Unauthenticated.LoginRoute.route) {
-
-            val onLogin = {
-                navController.navigate(route = NavigationRoutes.Authenticated.PhotoAllRoute.route)
-            }
-
-            LoginScreen(onLogin = onLogin)
+            LoginScreen(onLoginClicked = onLoginClicked)
         }
     }
 }

@@ -3,7 +3,6 @@ package com.cameleon.photo.manager.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -13,8 +12,8 @@ import androidx.navigation.compose.rememberNavController
 fun MainAppNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    lifecycleOwner: LifecycleOwner,
     isSignedIn: Boolean,
+    onLoginClicked: () -> Unit = {},
 ) {
     NavHost(
         modifier = modifier,
@@ -35,7 +34,7 @@ fun MainAppNavHost(
         }
 
         // Unauthenticated user flow screens
-        unauthenticatedGraph(navController = navController, lifecycleOwner = lifecycleOwner)
+        unauthenticatedGraph(navController = navController, onLoginClicked = onLoginClicked)
 
         // Authenticated user flow screens
         authenticatedGraph(navController = navController)
