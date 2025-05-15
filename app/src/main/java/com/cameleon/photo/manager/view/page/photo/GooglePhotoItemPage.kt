@@ -3,9 +3,9 @@ package com.cameleon.photo.manager.view.page.photo
 import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -21,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.cameleon.photo.manager.R
+import com.cameleon.photo.manager.ui.theme.PhotoManagerTheme
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
@@ -91,5 +92,6 @@ fun GooglePhotoItemPage(
 @Composable
 fun GooglePhotoItemPagePreview() {
     // Ne passe aucun paramètre pour tester le fallback
-    GooglePhotoItemPage()
+    PhotoManagerTheme { GooglePhotoItemPage() }
+
 }

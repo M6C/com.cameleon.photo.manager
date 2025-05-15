@@ -1,9 +1,12 @@
 package com.cameleon.photo.manager.view.page.photo
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,11 +18,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
+import com.cameleon.photo.manager.ui.theme.PhotoManagerTheme
 import kotlinx.coroutines.flow.distinctUntilChanged
 
 
@@ -45,6 +51,20 @@ fun GooglePhotosPage(token: MutableState<String>, mediaItems: List<String>, canL
             }
     }
 
+//    val photos = mediaItems.mapIndexed { i: Int, p: String ->
+//        Photo(i, p)
+//    }
+//    val selectedIds: MutableState<Set<Int>> = rememberSaveable { mutableStateOf(emptySet()) }
+//
+//    Column(modifier = Modifier.fillMaxSize()) {
+//        if (isLoading()) {
+//            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+//        }
+//        Spacer(modifier = Modifier.height(16.dp))
+//        PhotosGrid(photos = photos, selectedIds = selectedIds, onClickPhoto = onClickItem)
+//    }
+
+
     Column(modifier = Modifier
         .fillMaxSize()/*
         .padding(16.dp)*/) {
@@ -52,18 +72,30 @@ fun GooglePhotosPage(token: MutableState<String>, mediaItems: List<String>, canL
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         }
         Spacer(modifier = Modifier.height(16.dp))
-        LazyVerticalStaggeredGrid(columns = StaggeredGridCells.Adaptive(minSize = 100.dp), state = listState) {
+        LazyVerticalStaggeredGrid(
+            columns = StaggeredGridCells.Adaptive(minSize = 100.dp),
+            horizontalArrangement = Arrangement.spacedBy(3.dp),
+            state = listState,
+        ) {
             items(mediaItems.size) { index -> val url = mediaItems[index]
                 Image(
                     painter = rememberAsyncImagePainter(url),
                     contentDescription = null,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
+                        .aspectRatio(1f)
+//                        .fillMaxWidth()
+//                        .height(200.dp)
                         .clickable { onClickItem(url) }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }
+}
+
+@SuppressLint("UnrememberedMutableState")
+@Preview(showBackground = true)
+@Composable
+fun GooglePhotosPagePreview() {
+    PhotoManagerTheme { GooglePhotosPage(mutableStateOf(value = ""), buildList(200) { add("") }, {true}, {}, {true}, {}) }
 }
