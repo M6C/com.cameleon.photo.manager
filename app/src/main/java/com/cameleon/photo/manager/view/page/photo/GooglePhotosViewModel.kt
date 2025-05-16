@@ -29,15 +29,13 @@ class GooglePhotosViewModel @Inject constructor(private val tokenBusiness: Token
     var accessToken = mutableStateOf(tokenBusiness.getAccessToken() ?: "")
         private set
 
-    private fun getAccessToken() = accessToken.value
-
     fun canLoadNextPage() = googlePhotoBusiness.canLoadNextPage()
 
     fun fetchMediaItems(pageSize: Int = 50, onUnAuthenticate: () -> Unit = {}) {
         viewModelScope.launch(Dispatchers.IO) {
             isLoading = true
             try {
-                googlePhotoBusiness.fetchMediaItems(getAccessToken(), pageSize, throwsException = listOf(HttpException::class.java)).collect { urls ->
+                googlePhotoBusiness.fetchMediaItems(pageSize, throwsException = listOf(HttpException::class.java)).collect { urls ->
                     mediaItems = mediaItems + urls
                     isLoading = false
                 }

@@ -16,7 +16,7 @@ class GooglePhotoBusiness @Inject constructor(private val googlePhotosApi: Googl
     private var nextPageToken = ""
 
     // TODO User Token to retrive Photo
-    suspend fun fetchMediaItems(token: String?, pageSize: Int = 50, throwsException: List<Class<*>> = emptyList()) = flow {
+    suspend fun fetchMediaItems(pageSize: Int = 50, throwsException: List<Class<*>> = emptyList()) = flow {
         var json = ""
         try {
             val response = googlePhotosApi.getPhotos(pageSize, nextPageToken)
