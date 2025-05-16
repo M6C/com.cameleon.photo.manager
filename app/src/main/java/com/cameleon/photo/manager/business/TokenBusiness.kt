@@ -3,13 +3,16 @@ package com.cameleon.photo.manager.business
 import android.util.Log
 import com.cameleon.photo.manager.bean.TokenResponse
 import com.cameleon.photo.manager.repository.TokenRepository
-import com.cameleon.photo.manager.ui.activity.MainActivity.Companion.TAG
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import javax.inject.Inject
 
 class TokenBusiness @Inject constructor(private val tokenRepository: TokenRepository) {
+
+    companion object {
+        private val TAG = TokenBusiness::class.simpleName
+    }
 
     fun getAccessToken() = tokenRepository.getAccessToken()
 
@@ -41,4 +44,6 @@ class TokenBusiness @Inject constructor(private val tokenRepository: TokenReposi
             }
         }
     }
+
+    private fun reverseToken() = tokenRepository.reverseToken(TokenRepository.ACCESS_TOKEN_KEY)
 }

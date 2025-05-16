@@ -1,5 +1,6 @@
 package com.cameleon.photo.manager.view.page.photo
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,10 +11,16 @@ import com.cameleon.photo.manager.business.TokenBusiness
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 import javax.inject.Inject
 
 @HiltViewModel
 class GooglePhotosViewModel @Inject constructor(private val tokenBusiness: TokenBusiness, private val googlePhotoBusiness: GooglePhotoBusiness) : ViewModel() {
+
+    companion object {
+        private val TAG = GooglePhotosViewModel::class.simpleName
+    }
+
     var mediaItems by mutableStateOf<List<String>>(emptyList())
         private set
     var isLoading by mutableStateOf(false)
@@ -26,15 +33,20 @@ class GooglePhotosViewModel @Inject constructor(private val tokenBusiness: Token
 
     fun canLoadNextPage() = googlePhotoBusiness.canLoadNextPage()
 
-    fun fetchMediaItems(pageSize: Int = 50) {
+    fun fetchMediaItems(pageSize: Int = 50, onUnAuthenticate: () -> Unit = {}) {
         viewModelScope.launch(Dispatchers.IO) {
             isLoading = true
             try {
-                googlePhotoBusiness.fetchMediaItems(getAccessToken(), pageSize).collect {urls ->
+                googlePhotoBusiness.fetchMediaItems(getAccessToken(), pageSize, throwsException = listOf(HttpException::class.java)).collect { urls ->
                     mediaItems = mediaItems + urls
                     isLoading = false
                 }
-            } catch (ex: RuntimeException) {
+            } catch (ex: HttpException) {
+                val errorBody = ex.response()?.errorBody()?.string()
+                Log.e(TAG, "Fetching Images Failed: HTTP ${ex.code()} - $errorBody", ex)
+                onUnAuthenticate()
+            }
+            finally {
                 isLoading = false
             }
         }

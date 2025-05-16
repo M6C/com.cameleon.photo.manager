@@ -31,14 +31,14 @@ fun NavGraphBuilder.unauthenticatedGraph(navController: NavController, onLoginCl
 /**
  * Authenticated screens nav graph builder
  */
-fun NavGraphBuilder.authenticatedGraph(navController: NavController) {
+fun NavGraphBuilder.authenticatedGraph(navController: NavController, onUnAuthenticate: () -> Unit) {
     navigation(
         route = NavigationRoutes.Authenticated.NavigationRoute.route,
         startDestination = NavigationRoutes.Authenticated.PhotoAllRoute.route
     ) {
         // User
         composable(route = NavigationRoutes.Authenticated.PhotoAllRoute.route) { backStackEntry ->
-            GooglePhotosScreen {
+            GooglePhotosScreen(onUnAuthenticate = onUnAuthenticate) {
                 val url = it
                     .let {
                         NavigationRoutes.Authenticated.PhotoRoute.route.formatRoute("url", value = it, urlEncode = true)

@@ -13,6 +13,7 @@ fun MainAppNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     isSignedIn: Boolean,
+    onUnAuthenticate: () -> Unit = {},
     onLoginClicked: () -> Unit = {},
 ) {
     NavHost(
@@ -37,7 +38,7 @@ fun MainAppNavHost(
         unauthenticatedGraph(navController = navController, onLoginClicked = onLoginClicked)
 
         // Authenticated user flow screens
-        authenticatedGraph(navController = navController)
+        authenticatedGraph(navController = navController, onUnAuthenticate = onUnAuthenticate)
     }
 }
 

@@ -30,7 +30,7 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
 
     companion object {
-        val TAG = MainActivity::class.simpleName
+        private val TAG = MainActivity::class.simpleName
     }
 
     private val viewModel: PhotosViewModel by viewModels()
@@ -88,6 +88,11 @@ class MainActivity : ComponentActivity() {
                             navController = navController,
                             isSignedIn = isSignedIn.value,
                             onLoginClicked = {
+                                viewModel.launchSingIn(this@MainActivity)
+                            },
+                            onUnAuthenticate = {
+                                viewModel.logOut()
+                                viewModelPhoto.logOut()
                                 viewModel.launchSingIn(this@MainActivity)
                             }
                         )

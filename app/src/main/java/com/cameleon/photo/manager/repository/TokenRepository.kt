@@ -55,7 +55,7 @@ class TokenRepository @Inject constructor(private val context: Context, private 
         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
     )
 
-    private fun reverseToken(tokenKey: String) =
+    fun reverseToken(tokenKey: String) =
         getPrefs()
             .getString(tokenKey, null)
             ?.reversed()

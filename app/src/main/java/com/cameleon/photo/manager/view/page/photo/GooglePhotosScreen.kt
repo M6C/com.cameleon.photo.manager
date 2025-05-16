@@ -5,10 +5,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 
 
 @Composable
-fun GooglePhotosScreen(loadNextPhotoBefore: Int = 20, onClickItem: (String) -> Unit = {}) {
+fun GooglePhotosScreen(loadNextPhotoBefore: Int = 20, onUnAuthenticate: () -> Unit = {}, onClickItem: (String) -> Unit = {}) {
     val viewModel: GooglePhotosViewModel = hiltViewModel()
 
-    val onFetchMediaItems = { viewModel.fetchMediaItems() }
+    val onFetchMediaItems = { viewModel.fetchMediaItems(onUnAuthenticate = onUnAuthenticate) }
     val canLoadNextPhoto = { visibleItemsCount: Int ->
         visibleItemsCount >= viewModel.mediaItems.size - loadNextPhotoBefore && !viewModel.isLoading && viewModel.canLoadNextPage()
     }
