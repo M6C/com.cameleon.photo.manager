@@ -1,7 +1,7 @@
 package com.cameleon.photo.manager.business
 
 import android.util.Log
-import com.cameleon.photo.manager.bean.TokenResponse
+import com.cameleon.photo.manager.bean.dto.TokenResponse
 import com.cameleon.photo.manager.repository.TokenRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

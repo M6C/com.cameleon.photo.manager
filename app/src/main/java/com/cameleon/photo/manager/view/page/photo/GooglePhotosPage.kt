@@ -28,9 +28,9 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.cameleon.photo.manager.R
-import com.cameleon.photo.manager.business.PhotoItem
-import com.cameleon.photo.manager.business.PhotoSize
-import com.cameleon.photo.manager.business.urlBySize
+import com.cameleon.photo.manager.bean.PhotoItem
+import com.cameleon.photo.manager.bean.PhotoSize
+import com.cameleon.photo.manager.bean.extension.urlBySize
 import com.cameleon.photo.manager.ui.theme.PhotoManagerTheme
 import kotlinx.coroutines.flow.distinctUntilChanged
 

@@ -2,36 +2,13 @@ package com.cameleon.photo.manager.business
 
 import android.util.Log
 import com.cameleon.photo.manager.api.GooglePhotosApi
-import com.cameleon.photo.manager.api.MediaItem
+import com.cameleon.photo.manager.bean.PhotoItem
+import com.cameleon.photo.manager.bean.dto.MediaItem
+import com.cameleon.photo.manager.bean.dto.extension.toPhotoItem
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
 import javax.inject.Inject
-
-data class PhotoItem(val url: String, val urlFullSize: String = url, val creationTime: String = "", val mimeType: String = "", val width: String = "", val height: String = "")
-
-fun MediaItem.toPhotoItem() = PhotoItem (
-    url = baseUrl,
-    urlFullSize = "${baseUrl}=w${mediaMetadata.width}-h${mediaMetadata.height}",
-    creationTime = mediaMetadata.creationTime,
-    mimeType = mimeType,
-    width = mediaMetadata.width,
-    height = mediaMetadata.height,
-)
-
-fun PhotoItem.urlBySize(size: PhotoSize) =
-    when(size) {
-        is PhotoSize.Min -> "${url}=w${size.width}-h${size.height}"
-        is PhotoSize.Custom -> "${url}=w${size.width}-h${size.height}"
-        is PhotoSize.Full -> urlFullSize
-        else -> url
-    }
-
-sealed class PhotoSize {
-    data class Custom(val width: Int, val height: Int) : PhotoSize()
-    data class Min(val width: Int = 200, val height: Int = 200, val nbColumn: Int = 3) : PhotoSize()
-    data object Full : PhotoSize()
-}
 
 class GooglePhotoBusiness @Inject constructor(private val googlePhotosApi: GooglePhotosApi) {
 

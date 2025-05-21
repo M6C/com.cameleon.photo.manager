@@ -5,7 +5,7 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
 import com.cameleon.photo.manager.R
 import com.cameleon.photo.manager.api.GoogleOAuthApi
-import com.cameleon.photo.manager.bean.TokenResponse
+import com.cameleon.photo.manager.bean.dto.TokenResponse
 import javax.inject.Inject
 
 class TokenRepository @Inject constructor(private val context: Context, private val googleOAuthApi: GoogleOAuthApi) {

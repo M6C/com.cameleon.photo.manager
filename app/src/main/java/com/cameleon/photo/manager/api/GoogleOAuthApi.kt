@@ -1,6 +1,6 @@
 package com.cameleon.photo.manager.api
 
-import com.cameleon.photo.manager.bean.TokenResponse
+import com.cameleon.photo.manager.bean.dto.TokenResponse
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.POST

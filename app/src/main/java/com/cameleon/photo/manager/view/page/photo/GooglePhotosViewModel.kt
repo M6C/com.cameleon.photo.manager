@@ -7,7 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cameleon.photo.manager.business.GooglePhotoBusiness
-import com.cameleon.photo.manager.business.PhotoItem
+import com.cameleon.photo.manager.bean.PhotoItem
 import com.cameleon.photo.manager.business.TokenBusiness
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers

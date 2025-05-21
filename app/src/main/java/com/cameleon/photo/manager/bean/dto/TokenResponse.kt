@@ -1,4 +1,4 @@
-package com.cameleon.photo.manager.bean
+package com.cameleon.photo.manager.bean.dto
 
 import com.google.gson.annotations.SerializedName
 

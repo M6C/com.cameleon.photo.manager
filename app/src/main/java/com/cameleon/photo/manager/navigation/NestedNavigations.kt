@@ -4,8 +4,8 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.cameleon.photo.manager.business.PhotoSize
-import com.cameleon.photo.manager.business.urlBySize
+import com.cameleon.photo.manager.bean.PhotoSize
+import com.cameleon.photo.manager.bean.extension.urlBySize
 import com.cameleon.photo.manager.extension.formatRoute
 import com.cameleon.photo.manager.ui.login.LoginScreen
 import com.cameleon.photo.manager.view.page.photo.GooglePhotoItemScreen
