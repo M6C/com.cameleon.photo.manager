@@ -17,6 +17,8 @@ class GooglePhotoBusiness @Inject constructor(private val googlePhotosApi: Googl
 
     private var nextPageToken = ""
 
+    @Inject
+    lateinit var gson: Gson
 
     suspend fun fetchPhotos(pageSize: Int = 50, throwsException: List<Class<*>> = emptyList()) = flow {
         fetchMediaItems(pageSize, throwsException)
@@ -31,9 +33,9 @@ class GooglePhotoBusiness @Inject constructor(private val googlePhotosApi: Googl
         var json = ""
         try {
             val response = googlePhotosApi.getPhotos(pageSize, nextPageToken)
-            json = Gson().toJson(response)
+            json = gson.toJson(response)
             nextPageToken = response.nextPageToken
-            val listUrl = mediaItemMap(response.mediaItems)
+            mediaItemMap(response.mediaItems)
         } catch (e: RuntimeException) {
             val exClass = e.javaClass
             val nameException = throwsException.map { it.toString() }

@@ -23,7 +23,7 @@ object BusinessModule {
 
     @Provides
     @Singleton
-    fun provideGoogleSignInBusiness(@ApiGoogleOAuth googleOAuthApi: GoogleOAuthApi, tokenRepository: TokenRepository): GoogleSignInBusiness = GoogleSignInBusiness(googleOAuthApi, tokenRepository)
+    fun provideGoogleSignInBusiness(tokenRepository: TokenRepository): GoogleSignInBusiness = GoogleSignInBusiness(tokenRepository)
 
     @Provides
     @Singleton

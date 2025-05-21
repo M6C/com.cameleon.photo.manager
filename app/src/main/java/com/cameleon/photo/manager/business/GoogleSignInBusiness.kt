@@ -6,16 +6,21 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import com.cameleon.photo.manager.api.GoogleOAuthApi
+import com.cameleon.photo.manager.di.module.ApiGoogleOAuth
 import com.cameleon.photo.manager.repository.TokenRepository
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import javax.inject.Inject
 
-class GoogleSignInBusiness @Inject constructor(private val googleOAuthApi: GoogleOAuthApi, private val tokenRepository: TokenRepository) {
+class GoogleSignInBusiness @Inject constructor(private val tokenRepository: TokenRepository) {
 
     companion object {
         private val TAG = GoogleSignInBusiness::class.simpleName
     }
+
+    @Inject
+    @ApiGoogleOAuth
+    lateinit var googleOAuthApi: GoogleOAuthApi
 
     // Google Sign-In configuration
     fun singIn(activity: ComponentActivity, handleSignInResult: (GoogleSignInAccount) -> Unit): ActivityResultLauncher<Intent> =
