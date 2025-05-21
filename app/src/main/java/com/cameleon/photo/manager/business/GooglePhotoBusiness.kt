@@ -27,12 +27,9 @@ fun PhotoItem.urlBySize(size: PhotoSize) =
         else -> url
     }
 
-sealed class PhotoSize() {
+sealed class PhotoSize {
     data class Custom(val width: Int, val height: Int) : PhotoSize()
-    data object Min : PhotoSize() {
-        val width: Int = 120
-        val height: Int = 120
-    }
+    data class Min(val width: Int = 200, val height: Int = 200, val nbColumn: Int = 3) : PhotoSize()
     data object Full : PhotoSize()
 }
 
