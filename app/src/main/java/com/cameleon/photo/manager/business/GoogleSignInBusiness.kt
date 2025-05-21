@@ -12,7 +12,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import javax.inject.Inject
 
-class GoogleSignInBusiness @Inject constructor(private val tokenRepository: TokenRepository) {
+class GoogleSignInBusiness @Inject constructor() {
 
     companion object {
         private val TAG = GoogleSignInBusiness::class.simpleName
@@ -21,6 +21,10 @@ class GoogleSignInBusiness @Inject constructor(private val tokenRepository: Toke
     @Inject
     @ApiGoogleOAuth
     lateinit var googleOAuthApi: GoogleOAuthApi
+
+    @Inject
+    lateinit var tokenRepository: TokenRepository
+
 
     // Google Sign-In configuration
     fun singIn(activity: ComponentActivity, handleSignInResult: (GoogleSignInAccount) -> Unit): ActivityResultLauncher<Intent> =

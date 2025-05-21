@@ -8,11 +8,14 @@ import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import javax.inject.Inject
 
-class TokenBusiness @Inject constructor(private val tokenRepository: TokenRepository) {
+class TokenBusiness @Inject constructor() {
 
     companion object {
         private val TAG = TokenBusiness::class.simpleName
     }
+
+    @Inject
+    lateinit var tokenRepository: TokenRepository
 
     fun getAccessToken() = tokenRepository.getAccessToken()
 

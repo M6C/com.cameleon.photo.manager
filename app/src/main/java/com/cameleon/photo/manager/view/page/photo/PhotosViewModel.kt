@@ -27,11 +27,14 @@ import java.util.TimerTask
 import javax.inject.Inject
 
 @HiltViewModel
-class PhotosViewModel @Inject constructor(private val googleSignInBusiness: GoogleSignInBusiness, private val googleSignInClient: GoogleSignInClient, private val googleSignInOptions : GoogleSignInOptions, private val tokenBusiness: TokenBusiness) : ViewModel() {
+class PhotosViewModel @Inject constructor(private val googleSignInClient: GoogleSignInClient, private val googleSignInOptions : GoogleSignInOptions, private val tokenBusiness: TokenBusiness) : ViewModel() {
 
     companion object {
         val TAG = PhotosViewModel::class.simpleName
     }
+
+    @Inject
+    lateinit var googleSignInBusiness: GoogleSignInBusiness
 
     private val _isSignedIn = MutableStateFlow(false)
     val isSignedIn: StateFlow<Boolean> = _isSignedIn
