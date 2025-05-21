@@ -26,9 +26,5 @@ object BusinessModule {
     fun provideGoogleSignInBusiness(tokenRepository: TokenRepository): GoogleSignInBusiness = GoogleSignInBusiness(tokenRepository)
 
     @Provides
-    @Singleton
-    fun providePhotoInBusiness(googlePhotosApi: GooglePhotosApi): GooglePhotoBusiness = GooglePhotoBusiness(googlePhotosApi)
-
-    @Provides
     fun provideAuthInterceptor(tokenBusiness: TokenBusiness): AuthInterceptor = AuthInterceptor(tokenBusiness)
 }

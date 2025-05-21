@@ -6,8 +6,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cameleon.photo.manager.business.GooglePhotoBusiness
 import com.cameleon.photo.manager.bean.PhotoItem
+import com.cameleon.photo.manager.business.GooglePhotoBusiness
 import com.cameleon.photo.manager.business.TokenBusiness
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -16,11 +16,14 @@ import retrofit2.HttpException
 import javax.inject.Inject
 
 @HiltViewModel
-class GooglePhotosViewModel @Inject constructor(private val tokenBusiness: TokenBusiness, private val googlePhotoBusiness: GooglePhotoBusiness) : ViewModel() {
+class GooglePhotosViewModel @Inject constructor(tokenBusiness: TokenBusiness) : ViewModel() {
 
     companion object {
         private val TAG = GooglePhotosViewModel::class.simpleName
     }
+
+    @Inject
+    lateinit var googlePhotoBusiness: GooglePhotoBusiness
 
     var mediaItems by mutableStateOf<List<PhotoItem>>(emptyList())
         private set

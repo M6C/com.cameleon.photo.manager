@@ -9,13 +9,16 @@ import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
 import javax.inject.Inject
 
-class GooglePhotoBusiness @Inject constructor(private val googlePhotosApi: GooglePhotosApi) {
+class GooglePhotoBusiness @Inject constructor() {
 
     companion object {
         private val TAG = GooglePhotoBusiness::class.simpleName
     }
 
     private var nextPageToken = ""
+
+    @Inject
+    lateinit var googlePhotosApi: GooglePhotosApi
 
     @Inject
     lateinit var gson: Gson
