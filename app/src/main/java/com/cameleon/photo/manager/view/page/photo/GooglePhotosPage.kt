@@ -29,12 +29,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
+import com.cameleon.photo.manager.business.PhotoItem
+import com.cameleon.photo.manager.business.PhotoSize
+import com.cameleon.photo.manager.business.urlBySize
 import com.cameleon.photo.manager.ui.theme.PhotoManagerTheme
 import kotlinx.coroutines.flow.distinctUntilChanged
 
 
 @Composable
-fun GooglePhotosPage(token: MutableState<String>, mediaItems: List<String>, canLoadNextPhoto: (visibleItemsCount: Int) -> Boolean, onFetchMediaItems: () -> Unit, isLoading: () -> Boolean, onClickItem: (String) -> Unit) {
+fun GooglePhotosPage(token: MutableState<String>, mediaItems: List<PhotoItem>, canLoadNextPhoto: (visibleItemsCount: Int) -> Boolean, onFetchMediaItems: () -> Unit, isLoading: () -> Boolean, onClickItem: (PhotoItem) -> Unit) {
     val rememberToken by remember { token }
     val listState = rememberLazyStaggeredGridState()
 
@@ -55,8 +58,8 @@ fun GooglePhotosPage(token: MutableState<String>, mediaItems: List<String>, canL
             }
     }
 
-//    val photos = mediaItems.mapIndexed { i: Int, p: String ->
-//        Photo(i, p)
+//    val photos = mediaItems.mapIndexed { i: Int, p: PhotoItem ->
+//        Photo(i, p.urlBySize(PhotoSize.Min))
 //    }
 //    val selectedIds: MutableState<Set<Int>> = rememberSaveable { mutableStateOf(emptySet()) }
 //
@@ -65,7 +68,7 @@ fun GooglePhotosPage(token: MutableState<String>, mediaItems: List<String>, canL
 //            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
 //        }
 //        Spacer(modifier = Modifier.height(16.dp))
-//        PhotosGrid(photos = photos, selectedIds = selectedIds, onClickPhoto = onClickItem)
+//        PhotosGrid(photos = photos, selectedIds = selectedIds, onClickPhoto = { it -> onClickItem(PhotoItem(url = it))})
 //    }
 
 
@@ -77,7 +80,7 @@ fun GooglePhotosPage(token: MutableState<String>, mediaItems: List<String>, canL
         }
         Spacer(modifier = Modifier.height(16.dp))
         LazyVerticalStaggeredGrid(
-            columns = StaggeredGridCells.Adaptive(minSize = 100.dp),
+            columns = StaggeredGridCells.Adaptive(minSize = PhotoSize.Min.width.dp),
             horizontalArrangement = Arrangement.spacedBy(3.dp),
             state = listState,
         ) {
@@ -90,7 +93,7 @@ fun GooglePhotosPage(token: MutableState<String>, mediaItems: List<String>, canL
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
-                            painter = rememberAsyncImagePainter(url),
+                            painter = rememberAsyncImagePainter(url.urlBySize(PhotoSize.Min)),
                             contentDescription = null,
                             contentScale = ContentScale.FillWidth,
                             modifier = Modifier
@@ -111,5 +114,5 @@ fun GooglePhotosPage(token: MutableState<String>, mediaItems: List<String>, canL
 @Preview(showBackground = true)
 @Composable
 fun GooglePhotosPagePreview() {
-    PhotoManagerTheme { GooglePhotosPage(mutableStateOf(value = ""), buildList(200) { add("") }, {true}, {}, {true}, {}) }
+    PhotoManagerTheme { GooglePhotosPage(mutableStateOf(value = ""), buildList(200) { add(PhotoItem("", "")) }, {true}, {}, {true}, {}) }
 }

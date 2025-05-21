@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cameleon.photo.manager.business.GooglePhotoBusiness
+import com.cameleon.photo.manager.business.PhotoItem
 import com.cameleon.photo.manager.business.TokenBusiness
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +22,7 @@ class GooglePhotosViewModel @Inject constructor(private val tokenBusiness: Token
         private val TAG = GooglePhotosViewModel::class.simpleName
     }
 
-    var mediaItems by mutableStateOf<List<String>>(emptyList())
+    var mediaItems by mutableStateOf<List<PhotoItem>>(emptyList())
         private set
     var isLoading by mutableStateOf(false)
         private set
@@ -35,7 +36,7 @@ class GooglePhotosViewModel @Inject constructor(private val tokenBusiness: Token
         viewModelScope.launch(Dispatchers.IO) {
             isLoading = true
             try {
-                googlePhotoBusiness.fetchMediaItems(pageSize, throwsException = listOf(HttpException::class.java)).collect { urls ->
+                googlePhotoBusiness.fetchPhotos(pageSize, throwsException = listOf(HttpException::class.java)).collect { urls ->
                     mediaItems = mediaItems + urls
                     isLoading = false
                 }
