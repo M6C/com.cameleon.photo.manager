@@ -2,7 +2,6 @@ package com.cameleon.photo.manager.business
 
 import android.util.Log
 import com.cameleon.photo.manager.api.GooglePhotosApi
-import com.cameleon.photo.manager.bean.PhotoItem
 import com.cameleon.photo.manager.bean.dto.MediaItem
 import com.cameleon.photo.manager.bean.dto.extension.toPhotoItem
 import com.google.gson.Gson
@@ -19,16 +18,16 @@ class GooglePhotoBusiness @Inject constructor(private val googlePhotosApi: Googl
     private var nextPageToken = ""
 
 
-    suspend fun fetchPhotos(pageSize: Int = 50, throwsException: List<Class<*>> = emptyList()) = flow<List<PhotoItem>> {
-        fetchMediaItems<PhotoItem>(pageSize, throwsException)
-        { items : List<MediaItem> ->
-            val l = items
-                .map { it.toPhotoItem() }
-            this@flow.emit(l)
-        }
+    suspend fun fetchPhotos(pageSize: Int = 50, throwsException: List<Class<*>> = emptyList()) = flow {
+        fetchMediaItems(pageSize, throwsException)
+            { items : List<MediaItem> ->
+                items
+                    .map { it.toPhotoItem() }
+                    .run { this@flow.emit(this) }
+            }
     }
 
-    private suspend fun <T> fetchMediaItems(pageSize: Int = 50, throwsException: List<Class<*>> = emptyList(), mediaItemMap: suspend (List<MediaItem>) -> Unit = { emptyList<MediaItem>() }) {
+    private suspend fun fetchMediaItems(pageSize: Int = 50, throwsException: List<Class<*>> = emptyList(), mediaItemMap: suspend (List<MediaItem>) -> Unit = { }) {
         var json = ""
         try {
             val response = googlePhotosApi.getPhotos(pageSize, nextPageToken)
