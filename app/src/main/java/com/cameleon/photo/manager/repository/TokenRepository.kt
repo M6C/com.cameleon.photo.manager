@@ -5,16 +5,26 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
 import com.cameleon.photo.manager.R
 import com.cameleon.photo.manager.api.GoogleOAuthApi
-import com.cameleon.photo.manager.bean.TokenResponse
+import com.cameleon.photo.manager.bean.dto.TokenResponse
+import com.cameleon.photo.manager.di.module.ApiGoogleOAuthDirect
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
-class TokenRepository @Inject constructor(private val context: Context, private val googleOAuthApi: GoogleOAuthApi) {
+class TokenRepository @Inject constructor() {
 
     companion object {
         private const val PREF_NAME = "secure_prefs"
         const val ACCESS_TOKEN_KEY = "access_token"
         private const val REFRESH_TOKEN_KEY = "refresh_token"
     }
+
+    @Inject
+    @ApplicationContext
+    lateinit var context: Context
+
+    @Inject
+    @ApiGoogleOAuthDirect
+    lateinit var googleOAuthApi: GoogleOAuthApi
 
     suspend fun refreshToken(refreshToken: String): TokenResponse =
         googleOAuthApi.refreshToken(
@@ -55,7 +65,7 @@ class TokenRepository @Inject constructor(private val context: Context, private 
         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
     )
 
-    private fun reverseToken(tokenKey: String) =
+    fun reverseToken(tokenKey: String) =
         getPrefs()
             .getString(tokenKey, null)
             ?.reversed()

@@ -30,7 +30,7 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
 
     companion object {
-        val TAG = MainActivity::class.simpleName
+        private val TAG = MainActivity::class.simpleName
     }
 
     private val viewModel: PhotosViewModel by viewModels()
@@ -44,7 +44,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         viewModel.singIn(this) {
-            viewModel.launchSingIn(this@MainActivity)
+            if (!viewModel.checkSignedIn()) {
+                viewModel.launchSingIn(this@MainActivity)
+            }
         }
 
         enableEdgeToEdge()
@@ -70,8 +72,9 @@ class MainActivity : ComponentActivity() {
                             if (isSignedIn.value) {
                                 viewModel.logOut()
                                 viewModelPhoto.logOut()
+                            } else {
+                                viewModel.launchSingIn(this@MainActivity)
                             }
-                            Toast.makeText(this@MainActivity, "Logout Successful", Toast.LENGTH_SHORT).show()
                         }
                     }
                 ) { innerPadding ->
@@ -83,8 +86,15 @@ class MainActivity : ComponentActivity() {
                     ) {
                         MainAppNavHost(
                             navController = navController,
-                            lifecycleOwner = this@MainActivity,
-                            isSignedIn = isSignedIn.value
+                            isSignedIn = isSignedIn.value,
+                            onLoginClicked = {
+                                viewModel.launchSingIn(this@MainActivity)
+                            },
+                            onUnAuthenticate = {
+                                viewModel.logOut()
+                                viewModelPhoto.logOut()
+                                viewModel.launchSingIn(this@MainActivity)
+                            }
                         )
                     }
 

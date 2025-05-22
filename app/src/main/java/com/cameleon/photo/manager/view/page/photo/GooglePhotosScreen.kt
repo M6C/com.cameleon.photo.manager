@@ -2,13 +2,14 @@ package com.cameleon.photo.manager.view.page.photo
 
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.cameleon.photo.manager.bean.PhotoItem
 
 
 @Composable
-fun GooglePhotosScreen(loadNextPhotoBefore: Int = 20, onClickItem: (String) -> Unit = {}) {
+fun GooglePhotosScreen(loadNextPhotoBefore: Int = 20, onUnAuthenticate: () -> Unit = {}, onClickItem: (PhotoItem) -> Unit = {}) {
     val viewModel: GooglePhotosViewModel = hiltViewModel()
 
-    val onFetchMediaItems = { viewModel.fetchMediaItems() }
+    val onFetchMediaItems = { viewModel.fetchMediaItems(onUnAuthenticate = onUnAuthenticate) }
     val canLoadNextPhoto = { visibleItemsCount: Int ->
         visibleItemsCount >= viewModel.mediaItems.size - loadNextPhotoBefore && !viewModel.isLoading && viewModel.canLoadNextPage()
     }

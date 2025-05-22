@@ -18,24 +18,15 @@ object ApiModule {
     @Singleton
     @ApiGoogleOAuth
     fun provideGoogleOAuthApi(@RetrofitOAuth retrofit: Retrofit): GoogleOAuthApi = retrofit.create(GoogleOAuthApi::class.java)
-        .also {
-            println("-----------------------> provideGoogleOAuthApi GooglePhotosApi:$it retrofit:$retrofit")
-        }
 
     @Provides
     @Singleton
     @ApiGoogleOAuthDirect
     fun provideGoogleOAuthDirectApi(@RetrofitOAuthDirect retrofit: Retrofit): GoogleOAuthApi = retrofit.create(GoogleOAuthApi::class.java)
-        .also {
-            println("-----------------------> provideGoogleOAuthDirectApi GooglePhotosApi:$it retrofit:$retrofit")
-        }
 
     @Provides
     @Singleton
     fun provideGooglePhotoApi(@RetrofitPhoto retrofit: Retrofit): GooglePhotosApi = retrofit.create(GooglePhotosApi::class.java)
-        .also {
-            println("-----------------------> provideGooglePhotoApi GooglePhotosApi:$it retrofit:$retrofit")
-        }
 }
 
 @Qualifier

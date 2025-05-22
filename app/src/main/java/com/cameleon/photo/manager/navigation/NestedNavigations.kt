@@ -1,10 +1,11 @@
 package com.cameleon.photo.manager.navigation
 
-import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import com.cameleon.photo.manager.bean.PhotoSize
+import com.cameleon.photo.manager.bean.extension.urlBySize
 import com.cameleon.photo.manager.extension.formatRoute
 import com.cameleon.photo.manager.ui.login.LoginScreen
 import com.cameleon.photo.manager.view.page.photo.GooglePhotoItemScreen
@@ -16,7 +17,7 @@ import java.nio.charset.StandardCharsets
  * Login, registration, forgot password screens nav graph builder
  * (Unauthenticated user)
  */
-fun NavGraphBuilder.unauthenticatedGraph(navController: NavController, lifecycleOwner: LifecycleOwner) {
+fun NavGraphBuilder.unauthenticatedGraph(navController: NavController, onLoginClicked: () -> Unit = {}) {
 
     navigation (
         route = NavigationRoutes.Unauthenticated.NavigationRoute.route,
@@ -24,12 +25,7 @@ fun NavGraphBuilder.unauthenticatedGraph(navController: NavController, lifecycle
     ) {
         // Login
         composable(route = NavigationRoutes.Unauthenticated.LoginRoute.route) {
-
-            val onLogin = {
-                navController.navigate(route = NavigationRoutes.Authenticated.PhotoAllRoute.route)
-            }
-
-            LoginScreen(onLogin = onLogin)
+            LoginScreen(onLoginClicked = onLoginClicked)
         }
     }
 }
@@ -37,17 +33,17 @@ fun NavGraphBuilder.unauthenticatedGraph(navController: NavController, lifecycle
 /**
  * Authenticated screens nav graph builder
  */
-fun NavGraphBuilder.authenticatedGraph(navController: NavController) {
+fun NavGraphBuilder.authenticatedGraph(navController: NavController, onUnAuthenticate: () -> Unit) {
     navigation(
         route = NavigationRoutes.Authenticated.NavigationRoute.route,
         startDestination = NavigationRoutes.Authenticated.PhotoAllRoute.route
     ) {
         // User
         composable(route = NavigationRoutes.Authenticated.PhotoAllRoute.route) { backStackEntry ->
-            GooglePhotosScreen {
+            GooglePhotosScreen(onUnAuthenticate = onUnAuthenticate) {
                 val url = it
                     .let {
-                        NavigationRoutes.Authenticated.PhotoRoute.route.formatRoute("url", value = it, urlEncode = true)
+                        NavigationRoutes.Authenticated.PhotoRoute.route.formatRoute("url", value = it.urlBySize(PhotoSize.Full), urlEncode = true)
                     }
                 navController.navigate(url)
             }
