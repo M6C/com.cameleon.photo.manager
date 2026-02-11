@@ -1,5 +1,18 @@
 # com.cameleon.photo.manager
 
+⚠️ Erreur 403 - la cause du problème !
+⚠️ Le scope photoslibrary a été SUPPRIMÉ par Google le 31 mars 2025.
+
+Nous sommes en février 2026. C'est pourquoi l'API rejette votre token même s'il possède le bon scope - ce scope n'existe plus !
+
+Depuis 2025, seul photoslibrary.appendonly est disponible, qui permet uniquement :
+
+✅ Uploader des nouvelles photos
+✅ Lire les photos créées par votre app
+❌ Ne peut PAS lire les photos existantes de l'utilisateur
+
+
+
 
 En 1er lieu créer l'application sur dans la console Firebase : https://firebase.google.com/
 

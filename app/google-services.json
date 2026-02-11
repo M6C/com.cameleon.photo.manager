@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "772529670627",
+    "project_id": "photo-manager-87e76",
+    "storage_bucket": "photo-manager-87e76.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:772529670627:android:307093fc908e422c0b38d6",
+        "android_client_info": {
+          "package_name": "com.cameleon.photo.manager"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "772529670627-47r9vgo96fm5396vf650aimr4vag5fmn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA3-R6dSyGKDfTNe1907zVN4LhBPIcKFbE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "772529670627-47r9vgo96fm5396vf650aimr4vag5fmn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

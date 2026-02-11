@@ -7,6 +7,7 @@
 .DS_Store
 /build
 /captures
+/app/src/main/res/values/strings_google_services.xml
 
 # Gradle files
 .gradle/
@@ -39,7 +40,14 @@ render.experimental.xml
 *.keystore
 
 # Google Services (e.g. APIs or Firebase)
-google-services.json
+#google-services.json
 
 # Android Profiling
 *.hprof
+
+# Ignored for server_client_id and client_secret entry
+# To add others specifics entry use : git add -p app/src/main/res/values/strings.xml
+#/app/src/main/res/values/strings.xml
+
+# AntiGravity
+build_output*.txt

@@ -15,6 +15,15 @@ class AuthInterceptor(private val tokenBusiness: TokenBusiness) : Interceptor {
 
         if (token != null) {
             requestBuilder.header("Authorization", "Bearer $token")
+            Log.d(
+                    "AuthInterceptor",
+                    "Added Authorization header with token: ${token.take(10)}... to request: ${originalRequest.url}"
+            )
+        } else {
+            Log.w(
+                    "AuthInterceptor",
+                    "No access token available for request: ${originalRequest.url}"
+            )
         }
 
         var response = chain.proceed(requestBuilder.build())
@@ -23,17 +32,27 @@ class AuthInterceptor(private val tokenBusiness: TokenBusiness) : Interceptor {
         if (response.code == 401) {
             response.close() // Fermer la réponse existante
 
-            Log.i("GooglePhoto", "AuthInterceptor response code : ${response.code} -  Refresh Access Token (Old:$token)")
+            Log.i(
+                    "GooglePhoto",
+                    "AuthInterceptor response code : ${response.code} -  Refresh Access Token (Old:$token)"
+            )
 
             // Rafraîchir le token (bloquant)
             runBlocking { tokenBusiness.refreshAccessToken() }?.let { token ->
-                val newRequest = originalRequest.newBuilder()
-                    .header("Authorization", "Bearer $token")
-                    .build()
+                val newRequest =
+                        originalRequest
+                                .newBuilder()
+                                .header("Authorization", "Bearer $token")
+                                .build()
 
                 Log.i("GooglePhoto", "AuthInterceptor New Access Token : $token")
 
                 response = chain.proceed(newRequest) // Réexécuter la requête avec le nouveau token
+            }
+        } else if (!response.isSuccessful) {
+            Log.e("AuthInterceptor", "Request Failed: ${response.code} - ${response.message}")
+            response.headers.forEach { (name, value) ->
+                Log.d("AuthInterceptor", "Header: $name = $value")
             }
         }
 

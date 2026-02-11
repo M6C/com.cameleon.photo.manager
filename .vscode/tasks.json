@@ -1,0 +1,51 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "./gradlew assembleDebug",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "logcat",
+            "type": "shell",
+            "command": "echo 'LOGCAT_STARTED' && sh -c 'while true; do PID=$(adb shell pidof -s com.cameleon.photo.manager); if [ ! -z \"$PID\" ]; then adb logcat -v color --pid=$PID; fi; sleep 1; done'",
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": [
+                    {
+                        "regexp": "^LOGCAT_STARTED$",
+                        "file": 1,
+                        "location": 2,
+                        "message": 3
+                    }
+                ],
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^LOGCAT_STARTED$",
+                    "endsPattern": "^LOGCAT_STARTED$"
+                }
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "buildAndLogcat",
+            "dependsOn": [
+                "logcat",
+                "build"
+            ],
+            "dependsOrder": "parallel"
+        }
+    ]
+}

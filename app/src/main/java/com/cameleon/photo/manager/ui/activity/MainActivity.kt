@@ -10,10 +10,16 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.cameleon.photo.manager.navigation.MainAppNavHost
@@ -36,8 +42,7 @@ class MainActivity : ComponentActivity() {
     private val viewModel: PhotosViewModel by viewModels()
     private val viewModelPhoto: GooglePhotosViewModel by viewModels()
 
-    @Inject
-    lateinit var googleSignInOptions: GoogleSignInOptions
+    @Inject lateinit var googleSignInOptions: GoogleSignInOptions
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,6 +50,9 @@ class MainActivity : ComponentActivity() {
 
         viewModel.singIn(this) {
             if (!viewModel.checkSignedIn()) {
+                // Ensure clean state if not signed in
+                viewModel.logOut()
+                viewModelPhoto.logOut()
                 viewModel.launchSingIn(this@MainActivity)
             }
         }
@@ -54,6 +62,37 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
             val isSignedIn = viewModel.isSignedIn.collectAsState()
+            val showLogoutDialog = remember { mutableStateOf(false) }
+
+            if (showLogoutDialog.value) {
+                AlertDialog(
+                        onDismissRequest = { showLogoutDialog.value = false },
+                        title = { Text("Déconnexion") },
+                        text = {
+                            Text(
+                                    "Voulez-vous simplement vous déconnecter ou révoquer l'accès (ceci demandera à nouveau les permissions lors de la prochaine connexion) ?"
+                            )
+                        },
+                        confirmButton = {
+                            Button(
+                                    onClick = {
+                                        showLogoutDialog.value = false
+                                        viewModel.revokeAccess()
+                                        viewModelPhoto.logOut()
+                                    }
+                            ) { Text("Révoquer l'accès") }
+                        },
+                        dismissButton = {
+                            TextButton(
+                                    onClick = {
+                                        showLogoutDialog.value = false
+                                        viewModel.logOut()
+                                        viewModelPhoto.logOut()
+                                    }
+                            ) { Text("Déconnexion simple") }
+                        }
+                )
+            }
 
             viewModel.getUserMessage()?.let {
                 Toast.makeText(applicationContext, "Message : $it", Toast.LENGTH_SHORT).show()
@@ -65,36 +104,25 @@ class MainActivity : ComponentActivity() {
 
             PhotoManagerTheme {
                 Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    topBar = {
-                        TopAppBarComponent(isSignedIn = isSignedIn.value) {
-                            // Logout action
-                            if (isSignedIn.value) {
-                                viewModel.logOut()
-                                viewModelPhoto.logOut()
-                            } else {
-                                viewModel.launchSingIn(this@MainActivity)
+                        modifier = Modifier.fillMaxSize(),
+                        topBar = {
+                            TopAppBarComponent(isSignedIn = isSignedIn.value) {
+                                // Logout action
+                                if (isSignedIn.value) {
+                                    showLogoutDialog.value = true
+                                } else {
+                                    viewModel.launchSingIn(this@MainActivity)
+                                }
                             }
                         }
-                    }
                 ) { innerPadding ->
                     // Scrollable content area with sticky header support
-                    Box(
-                        modifier = Modifier
-                            .padding(innerPadding)
-                            .fillMaxSize()
-                    ) {
+                    Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
                         MainAppNavHost(
-                            navController = navController,
-                            isSignedIn = isSignedIn.value,
-                            onLoginClicked = {
-                                viewModel.launchSingIn(this@MainActivity)
-                            },
-                            onUnAuthenticate = {
-                                viewModel.logOut()
-                                viewModelPhoto.logOut()
-                                viewModel.launchSingIn(this@MainActivity)
-                            }
+                                navController = navController,
+                                isSignedIn = isSignedIn.value,
+                                onLoginClicked = { viewModel.launchSingIn(this@MainActivity) },
+                                onUnAuthenticate = { showLogoutDialog.value = true }
                         )
                     }
 
@@ -102,8 +130,9 @@ class MainActivity : ComponentActivity() {
                     LaunchedEffect(isSignedIn.value) {
                         Log.d(TAG, "isSignedIn changed: ${isSignedIn.value}")
                         navController.navigate(
-                            if (isSignedIn.value) NavigationRoutes.Authenticated.NavigationRoute.route
-                            else NavigationRoutes.Unauthenticated.NavigationRoute.route
+                                if (isSignedIn.value)
+                                        NavigationRoutes.Authenticated.NavigationRoute.route
+                                else NavigationRoutes.Unauthenticated.NavigationRoute.route
                         ) {
                             popUpTo(0) { inclusive = true }
                             launchSingleTop = true
