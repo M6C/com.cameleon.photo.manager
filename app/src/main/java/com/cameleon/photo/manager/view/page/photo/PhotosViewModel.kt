@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cameleon.photo.manager.bean.dto.UserInfoResponse
 import com.cameleon.photo.manager.business.GoogleSignInBusiness
 import com.cameleon.photo.manager.business.GoogleSignInError
 import com.cameleon.photo.manager.business.GoogleSignInError.INTERNET_CONNECTION_ERROR
@@ -44,6 +45,9 @@ constructor(
     private val _isSignedIn = MutableStateFlow(false)
     val isSignedIn: StateFlow<Boolean> = _isSignedIn
 
+    private val _userInfo = MutableStateFlow<UserInfoResponse?>(null)
+    val userInfo: StateFlow<UserInfoResponse?> = _userInfo
+
     private val _onShowUserMessage = MutableStateFlow<String?>(null)
     @Composable
     fun getUserMessage() =
@@ -65,6 +69,13 @@ constructor(
             }
     fun showUserError(message: String) = viewModelScope.launch { _onShowUserError.emit(message) }
 
+    private val _onUserInfoError = MutableStateFlow(false)
+    val onUserInfoError: StateFlow<Boolean> = _onUserInfoError
+
+    fun resetUserInfoError() {
+        _onUserInfoError.value = false
+    }
+
     private var authToken: String? = null
 
     private var signInLauncher: ActivityResultLauncher<Intent>? = null
@@ -81,7 +92,22 @@ constructor(
     fun checkSignedIn(): Boolean {
         authToken = tokenBusiness.getAccessToken()
         _isSignedIn.value = !authToken.isNullOrEmpty()
+        if (_isSignedIn.value && _userInfo.value == null) {
+            fetchUserInfo()
+        }
         return _isSignedIn.value
+    }
+
+    private fun fetchUserInfo() {
+        viewModelScope.launch {
+            try {
+                _userInfo.value = googleSignInBusiness.getUserInfo()
+            } catch (e: GoogleSignInException) {
+                onGoogleSignInException(e)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to fetch user info: ${e.message}", e)
+            }
+        }
     }
 
     fun launchSingIn(activity: Activity) {
@@ -94,6 +120,7 @@ constructor(
             tokenBusiness.clearTokens()
             authToken = null
             _isSignedIn.value = false
+            _userInfo.value = null
             showUserMessage("Logout Successful")
             onLogoutComplete()
         }
@@ -104,6 +131,7 @@ constructor(
             tokenBusiness.clearTokens()
             authToken = null
             _isSignedIn.value = false
+            _userInfo.value = null
             showUserMessage("Revoke Access Successful")
             onRevokeComplete()
         }
@@ -115,7 +143,8 @@ constructor(
 
         viewModelScope.launch {
             try {
-                googleSignInBusiness.handleSignInResult(account) {
+                googleSignInBusiness.handleSignInResult(account) { userInfo ->
+                    _userInfo.value = userInfo
                     showUserMessage("Login Successful")
                     this@PhotosViewModel._isSignedIn.value = true
                 }
@@ -129,23 +158,31 @@ constructor(
 
     private fun onGoogleSignInException(e: GoogleSignInException) {
         Log.e(TAG, e.message, e)
-        _onShowUserError.value =
-                when (e.error) {
-                    is INTERNET_CONNECTION_ERROR ->
-                            "Sign-in failed - ApiException - Internet Connection Error"
-                    is GoogleSignInError.OAUTH2_CERTIFICATE_ERROR ->
-                            "Sign-in failed - ApiException - SHA-1 of signing certificate Required in Google Cloud Console. Create an OAuth2 client and API key for your app"
-                    is GoogleSignInError.ACCESS_ERROR_API ->
-                            "Sign-in failed - ApiException - Access/Authorization Error API"
-                    is GoogleSignInError.ACCESS_BLOCKED_API ->
-                            "Sign-in failed - ApiException - Access Blocked API"
-                    is GoogleSignInError.AUTHENTICATION_ALREADY_CALL ->
-                            "Sign-in failed - ApiException - An Other API Authentication Already Running"
-                    is GoogleSignInError.UNKOWN_ERROR ->
-                            "Sign-in failed - ApiException - Unknown Code:${e.error.code}"
-                } + " : ${e.message}"
+        if (e.error is GoogleSignInError.USER_INFO_API_ERROR) {
+            _onShowUserMessage.value =
+                    "Erreur lors de la récupération des informations utilisateur."
+            _isSignedIn.value = true // We keep them signed in to show the dialog
+            _onUserInfoError.value = true
+        } else {
+            _onShowUserError.value =
+                    when (e.error) {
+                        is INTERNET_CONNECTION_ERROR ->
+                                "Sign-in failed - ApiException - Internet Connection Error"
+                        is GoogleSignInError.OAUTH2_CERTIFICATE_ERROR ->
+                                "Sign-in failed - ApiException - SHA-1 of signing certificate Required in Google Cloud Console. Create an OAuth2 client and API key for your app"
+                        is GoogleSignInError.ACCESS_ERROR_API ->
+                                "Sign-in failed - ApiException - Access/Authorization Error API"
+                        is GoogleSignInError.ACCESS_BLOCKED_API ->
+                                "Sign-in failed - ApiException - Access Blocked API"
+                        is GoogleSignInError.AUTHENTICATION_ALREADY_CALL ->
+                                "Sign-in failed - ApiException - An Other API Authentication Already Running"
+                        is GoogleSignInError.UNKOWN_ERROR ->
+                                "Sign-in failed - ApiException - Unknown Code:${e.error.code}"
+                        is GoogleSignInError.USER_INFO_API_ERROR -> "" // handled above
+                    } + " : ${e.message}"
 
-        waitAfterException()
+            waitAfterException()
+        }
     }
 
     private fun onRuntimeException(e: RuntimeException) {

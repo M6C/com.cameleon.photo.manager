@@ -30,13 +30,18 @@ class GooglePhotosViewModel @Inject constructor(private val tokenBusiness: Token
         private set
     var isLoading by mutableStateOf(false)
         private set
+    var fetchError by mutableStateOf<String?>(null)
+        private set
+
+    val debugInfo: String
+        get() = tokenBusiness.tokenRepository.showSecretsAndTokens()
 
     var accessToken = mutableStateOf(tokenBusiness.getAccessToken() ?: "")
         private set
 
     fun canLoadNextPage() = googlePhotoBusiness.canLoadNextPage()
 
-    fun fetchMediaItems(pageSize: Int = 50, onUnAuthenticate: () -> Unit = {}) {
+    fun fetchMediaItems(pageSize: Int = 50) {
         viewModelScope.launch(Dispatchers.IO) {
             val context = tokenBusiness.tokenRepository.context
             val account = GoogleSignIn.getLastSignedInAccount(context)
@@ -50,6 +55,7 @@ class GooglePhotosViewModel @Inject constructor(private val tokenBusiness: Token
             )
 
             isLoading = true
+            fetchError = null
             try {
                 googlePhotoBusiness.fetchPhotos(
                                 pageSize,
@@ -61,8 +67,13 @@ class GooglePhotosViewModel @Inject constructor(private val tokenBusiness: Token
                         }
             } catch (ex: HttpException) {
                 val errorBody = ex.response()?.errorBody()?.string()
-                Log.e(TAG, "Fetching Images Failed: HTTP ${ex.code()} - $errorBody", ex)
-                onUnAuthenticate()
+                val message = "HTTP ${ex.code()} - $errorBody"
+                Log.e(TAG, "Fetching Images Failed: $message", ex)
+                fetchError = message
+            } catch (ex: Exception) {
+                val message = ex.message ?: "Unknown error"
+                Log.e(TAG, "Fetching Images Failed: $message", ex)
+                fetchError = message
             } finally {
                 isLoading = false
             }

@@ -12,12 +12,25 @@ sealed class GoogleSignInError(val code: Int, val technicalMessage: String) {
     }
 
     class INTERNET_CONNECTION_ERROR : GoogleSignInError(7, "Internet Connection Error")
-    class OAUTH2_CERTIFICATE_ERROR : GoogleSignInError(10, "Certain Google Play services (such as Google Sign-in and App Invites) require you to provide the SHA-1 of your signing certificate so we can create an OAuth2 client and API key for your app\nhttps://console.cloud.google.com/apis/credentials")
+    class OAUTH2_CERTIFICATE_ERROR :
+            GoogleSignInError(
+                    10,
+                    "Certain Google Play services (such as Google Sign-in and App Invites) require you to provide the SHA-1 of your signing certificate so we can create an OAuth2 client and API key for your app\nhttps://console.cloud.google.com/apis/credentials"
+            )
     class ACCESS_ERROR_API : GoogleSignInError(12500, "Access/Authorization Error API")
-    class ACCESS_BLOCKED_API : GoogleSignInError(12501, "Access Blocked API\nhttps://console.cloud.google.com/apis/api/photoslibrary.googleapis.com")
-    class AUTHENTICATION_ALREADY_CALL : GoogleSignInError(12502, "An Other API Authentication Already Running")
-    class UNKOWN_ERROR(error : Int = -1, e: RuntimeException? = null) : GoogleSignInError(error, "Sign-in failed - Unknown Code ${e?.message?.run { "message:${this}" }}")
+    class ACCESS_BLOCKED_API :
+            GoogleSignInError(
+                    12501,
+                    "Access Blocked API\nhttps://console.cloud.google.com/apis/api/photoslibrary.googleapis.com"
+            )
+    class AUTHENTICATION_ALREADY_CALL :
+            GoogleSignInError(12502, "An Other API Authentication Already Running")
+    class USER_INFO_API_ERROR : GoogleSignInError(12503, "User Info API Call Failed")
+    class UNKOWN_ERROR(error: Int = -1, e: RuntimeException? = null) :
+            GoogleSignInError(
+                    error,
+                    "Sign-in failed - Unknown Code ${e?.message?.run { "message:${this}" }}"
+            )
 }
 
-
-class GoogleSignInException(val error : GoogleSignInError) : RuntimeException()
+class GoogleSignInException(val error: GoogleSignInError) : RuntimeException()

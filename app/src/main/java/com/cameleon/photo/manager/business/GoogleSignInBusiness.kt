@@ -6,6 +6,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import com.cameleon.photo.manager.api.GoogleOAuthApi
+import com.cameleon.photo.manager.api.GoogleUserApi
+import com.cameleon.photo.manager.bean.dto.UserInfoResponse
 import com.cameleon.photo.manager.di.module.ApiGoogleOAuth
 import com.cameleon.photo.manager.repository.TokenRepository
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -19,6 +21,8 @@ class GoogleSignInBusiness @Inject constructor() {
     }
 
     @Inject @ApiGoogleOAuth lateinit var googleOAuthApi: GoogleOAuthApi
+
+    @Inject lateinit var googleUserApi: GoogleUserApi
 
     @Inject lateinit var tokenRepository: TokenRepository
 
@@ -44,7 +48,10 @@ class GoogleSignInBusiness @Inject constructor() {
     //        signInLauncher.launch(client.signInIntent)
     //    }
 
-    suspend fun handleSignInResult(account: GoogleSignInAccount, onSignIn: () -> Unit) {
+    suspend fun handleSignInResult(
+            account: GoogleSignInAccount,
+            onSignIn: (UserInfoResponse?) -> Unit
+    ) {
         val requiredScope = "https://www.googleapis.com/auth/photoslibrary"
         val hasScope = account.grantedScopes.any { it.scopeUri == requiredScope }
         Log.d(
@@ -82,10 +89,21 @@ class GoogleSignInBusiness @Inject constructor() {
         }
     }
 
-    suspend fun exchangeAuthCodeForTokens(account: GoogleSignInAccount, onSignIn: () -> Unit) =
-            exchangeAuthCodeForTokens(account.serverAuthCode, onSignIn)
+    suspend fun getUserInfo(): UserInfoResponse {
+        try {
+            return googleUserApi.getUserInfo()
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ UserInfo call failed: ${e.message}", e)
+            throw GoogleSignInException(GoogleSignInError.USER_INFO_API_ERROR())
+        }
+    }
 
-    suspend fun exchangeAuthCodeForTokens(code: String?, onSignIn: () -> Unit) {
+    suspend fun exchangeAuthCodeForTokens(
+            account: GoogleSignInAccount,
+            onSignIn: (UserInfoResponse?) -> Unit
+    ) = exchangeAuthCodeForTokens(account.serverAuthCode, onSignIn)
+
+    suspend fun exchangeAuthCodeForTokens(code: String?, onSignIn: (UserInfoResponse?) -> Unit) {
         val clientId = tokenRepository.getServerClientId()
         val clientSecret = tokenRepository.getClientSecret()
         Log.d(
@@ -118,13 +136,22 @@ class GoogleSignInBusiness @Inject constructor() {
 
             tokenRepository.saveTokens(accessToken = accessToken, refreshToken = refreshToken)
 
-            onSignIn()
-        } catch (e: RuntimeException) {
+            // ✅ Validation de l'auth : appel userinfo
+            val userInfo = getUserInfo()
+            Log.d(
+                    TAG,
+                    "✅ UserInfo OK: name=${userInfo.name}, email=${userInfo.email}, id=${userInfo.id}"
+            )
+
+            onSignIn(userInfo)
+        } catch (e: Exception) {
             Log.e(
                     TAG,
                     "Google Exchange Auth For Token Api Call Failed '${e.message}\n${tokenRepository.showSecretsAndTokens()}",
                     e
             )
+            if (e is GoogleSignInException) throw e
+            throw RuntimeException("Google Exchange Auth For Token Api Call Failed: ${e.message}")
         }
     }
 }

@@ -62,9 +62,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
             val isSignedIn = viewModel.isSignedIn.collectAsState()
+            val userInfo = viewModel.userInfo.collectAsState()
+            val onUserInfoError = viewModel.onUserInfoError.collectAsState()
             val showLogoutDialog = remember { mutableStateOf(false) }
 
-            if (showLogoutDialog.value) {
+            if (showLogoutDialog.value || onUserInfoError.value) {
                 AlertDialog(
                         onDismissRequest = { showLogoutDialog.value = false },
                         title = { Text("Déconnexion") },
@@ -77,6 +79,7 @@ class MainActivity : ComponentActivity() {
                             Button(
                                     onClick = {
                                         showLogoutDialog.value = false
+                                        viewModel.resetUserInfoError()
                                         viewModel.revokeAccess()
                                         viewModelPhoto.logOut()
                                     }
@@ -86,6 +89,7 @@ class MainActivity : ComponentActivity() {
                             TextButton(
                                     onClick = {
                                         showLogoutDialog.value = false
+                                        viewModel.resetUserInfoError()
                                         viewModel.logOut()
                                         viewModelPhoto.logOut()
                                     }
@@ -106,7 +110,10 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                         modifier = Modifier.fillMaxSize(),
                         topBar = {
-                            TopAppBarComponent(isSignedIn = isSignedIn.value) {
+                            TopAppBarComponent(
+                                    isSignedIn = isSignedIn.value,
+                                    userInfo = userInfo.value
+                            ) {
                                 // Logout action
                                 if (isSignedIn.value) {
                                     showLogoutDialog.value = true
@@ -121,21 +128,26 @@ class MainActivity : ComponentActivity() {
                         MainAppNavHost(
                                 navController = navController,
                                 isSignedIn = isSignedIn.value,
-                                onLoginClicked = { viewModel.launchSingIn(this@MainActivity) },
-                                onUnAuthenticate = { showLogoutDialog.value = true }
+                                onUnAuthenticate = { showLogoutDialog.value = true },
+                                onLoginClicked = { viewModel.launchSingIn(this@MainActivity) }
                         )
                     }
 
                     // Trigger navigation when sign-in status changes
                     LaunchedEffect(isSignedIn.value) {
                         Log.d(TAG, "isSignedIn changed: ${isSignedIn.value}")
-                        navController.navigate(
-                                if (isSignedIn.value)
-                                        NavigationRoutes.Authenticated.NavigationRoute.route
-                                else NavigationRoutes.Unauthenticated.NavigationRoute.route
-                        ) {
-                            popUpTo(0) { inclusive = true }
-                            launchSingleTop = true
+
+                        // Si une erreur sur le User Info est détéctée, on reste sur l'écran
+                        // d'erreur pour que l'AlertDialog s'affiche bien sur l'écran et on reset.
+                        if (!onUserInfoError.value || !isSignedIn.value) {
+                            navController.navigate(
+                                    if (isSignedIn.value)
+                                            NavigationRoutes.Authenticated.NavigationRoute.route
+                                    else NavigationRoutes.Unauthenticated.NavigationRoute.route
+                            ) {
+                                popUpTo(0) { inclusive = true }
+                                launchSingleTop = true
+                            }
                         }
                     }
                 }

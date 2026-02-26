@@ -1,0 +1,7 @@
+[
+  {
+    "key": "alt+v",
+    "command": "git.openChange",
+    "when": "editorFocus"
+  }
+]

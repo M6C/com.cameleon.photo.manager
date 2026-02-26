@@ -13,15 +13,15 @@ import com.cameleon.photo.manager.view.page.photo.GooglePhotosScreen
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
-/**
- * Login, registration, forgot password screens nav graph builder
- * (Unauthenticated user)
- */
-fun NavGraphBuilder.unauthenticatedGraph(navController: NavController, onLoginClicked: () -> Unit = {}) {
+/** Login, registration, forgot password screens nav graph builder (Unauthenticated user) */
+fun NavGraphBuilder.unauthenticatedGraph(
+        navController: NavController,
+        onLoginClicked: () -> Unit = {}
+) {
 
-    navigation (
-        route = NavigationRoutes.Unauthenticated.NavigationRoute.route,
-        startDestination = NavigationRoutes.Unauthenticated.LoginRoute.route
+    navigation(
+            route = NavigationRoutes.Unauthenticated.NavigationRoute.route,
+            startDestination = NavigationRoutes.Unauthenticated.LoginRoute.route
     ) {
         // Login
         composable(route = NavigationRoutes.Unauthenticated.LoginRoute.route) {
@@ -30,31 +30,33 @@ fun NavGraphBuilder.unauthenticatedGraph(navController: NavController, onLoginCl
     }
 }
 
-/**
- * Authenticated screens nav graph builder
- */
+/** Authenticated screens nav graph builder */
 fun NavGraphBuilder.authenticatedGraph(navController: NavController, onUnAuthenticate: () -> Unit) {
     navigation(
-        route = NavigationRoutes.Authenticated.NavigationRoute.route,
-        startDestination = NavigationRoutes.Authenticated.PhotoAllRoute.route
+            route = NavigationRoutes.Authenticated.NavigationRoute.route,
+            startDestination = NavigationRoutes.Authenticated.PhotoAllRoute.route
     ) {
         // User
         composable(route = NavigationRoutes.Authenticated.PhotoAllRoute.route) { backStackEntry ->
-            GooglePhotosScreen(onUnAuthenticate = onUnAuthenticate) {
-                val url = it
-                    .let {
-                        NavigationRoutes.Authenticated.PhotoRoute.route.formatRoute("url", value = it.urlBySize(PhotoSize.Full), urlEncode = true)
-                    }
+            GooglePhotosScreen() {
+                val url =
+                        it.let {
+                            NavigationRoutes.Authenticated.PhotoRoute.route.formatRoute(
+                                    "url",
+                                    value = it.urlBySize(PhotoSize.Full),
+                                    urlEncode = true
+                            )
+                        }
                 navController.navigate(url)
             }
         }
         // User
         composable(route = NavigationRoutes.Authenticated.PhotoRoute.route) { backStackEntry ->
-            backStackEntry.arguments?.getString("url")
-                ?.let { URLDecoder.decode(it, StandardCharsets.UTF_8.toString()) }
-                ?.let { url ->
-                    GooglePhotoItemScreen(url)
-                }
+            backStackEntry
+                    .arguments
+                    ?.getString("url")
+                    ?.let { URLDecoder.decode(it, StandardCharsets.UTF_8.toString()) }
+                    ?.let { url -> GooglePhotoItemScreen(url) }
         }
     }
 }
